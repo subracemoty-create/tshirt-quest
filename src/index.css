@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+@theme {
+  --font-game: 'Press Start 2P', monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* ===== SPACE BACKGROUND ===== */
+body {
+  margin: 0;
+  background: #020208;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ===== STARS ===== */
+.stars-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  animation: float-star linear infinite;
+}
+
+@keyframes float-star {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-120vh) scale(0.5); opacity: 0; }
+}
+
+/* ===== UFO COCKPIT ===== */
+.cockpit-wrapper {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Outer hull - the dark metallic frame of the ship */
+.cockpit-hull {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  /* Giant oval "window" cut out of the hull */
+  background: radial-gradient(ellipse 52% 46% at 50% 48%, transparent 98%, #0c0e18 99%);
+}
+
+/* Hull inner shadow/bevel */
+.cockpit-hull::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 53% 47% at 50% 48%, transparent 96%, rgba(30,50,80,0.6) 97%, transparent 100%);
+  z-index: 1;
+}
+
+/* Window glass tint + reflection */
+.cockpit-hull::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 44% at 50% 48%, rgba(80,160,255,0.03) 0%, rgba(40,80,160,0.06) 70%, rgba(10,20,40,0.4) 100%);
+  z-index: 0;
+}
+
+/* Top frame piece - thicker hull at top */
+.cockpit-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, #0a0e1a 0%, #0e1525 60%, transparent 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Bottom frame - dashboard area */
+.cockpit-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: linear-gradient(0deg, #0a0e1a 0%, #0e1525 60%, transparent 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Left hull panel */
+.cockpit-left {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 80px;
+  background: linear-gradient(90deg, #0a0e1a 0%, #0c1020 40%, transparent 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Right hull panel */
+.cockpit-right {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 80px;
+  background: linear-gradient(270deg, #0a0e1a 0%, #0c1020 40%, transparent 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Window frame ring - the glass edge */
+.window-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  /* Oval border using box-shadow trick on a centered pseudo element */
+}
+
+.window-frame::before {
+  content: '';
+  position: absolute;
+  top: 6%;
+  left: 4%;
+  right: 4%;
+  bottom: 8%;
+  border-radius: 50%;
+  border: 2px solid rgba(100,180,255,0.15);
+  box-shadow:
+    0 0 30px rgba(80,150,255,0.08),
+    inset 0 0 60px rgba(80,150,255,0.03);
+}
+
+/* Glass reflection arc - top highlight */
+.window-frame::after {
+  content: '';
+  position: absolute;
+  top: 8%;
+  left: 20%;
+  right: 20%;
+  height: 15%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+}
+
+/* Rivets / hull detail dots on the corners */
+.rivet {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #3a4a60 0%, #1a2a3a 100%);
+  border: 1px solid #2a3a4a;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Dashboard indicators */
+.dash-light {
+  position: fixed;
+  bottom: 18px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  z-index: 5;
+  pointer-events: none;
+  animation: blink-light 2s ease-in-out infinite;
+}
+
+.dash-light.green { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+.dash-light.red { background: #ff4444; box-shadow: 0 0 8px #ff4444; animation-delay: 0.7s; }
+.dash-light.blue { background: #4488ff; box-shadow: 0 0 8px #4488ff; animation-delay: 1.4s; }
+
+@keyframes blink-light {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Content area (inside the window) */
+.cockpit-content {
+  position: relative;
+  z-index: 6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

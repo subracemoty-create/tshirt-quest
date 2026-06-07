@@ -34,11 +34,11 @@ export default function BuzzerButton({ label, color = 'pink', onClick }) {
       className="group relative cursor-pointer select-none transition-all duration-100 active:translate-y-1"
     >
       {/* Black elliptical base */}
-      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-[120%] h-5 bg-gradient-to-b from-gray-800 to-black rounded-[50%]" />
+      <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-[120%] h-4 bg-gradient-to-b from-gray-800 to-black rounded-[50%]" />
 
       {/* Outer glow ring */}
       <div
-        className={`relative z-10 w-28 h-14 md:w-32 md:h-16 rounded-[50%] bg-gradient-to-b ${c.outer} flex items-center justify-center transition-shadow duration-200`}
+        className={`relative z-10 w-24 h-11 md:w-28 md:h-13 rounded-[50%] bg-gradient-to-b ${c.outer} flex items-center justify-center transition-shadow duration-200`}
         style={{ boxShadow: c.shadow }}
         onMouseEnter={e => e.currentTarget.style.boxShadow = c.hoverShadow}
         onMouseLeave={e => e.currentTarget.style.boxShadow = c.shadow}

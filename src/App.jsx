@@ -151,7 +151,7 @@ function App() {
         <Header cartCount={cartCount} level={1} />
 
         <main
-          className="flex-1 min-h-0 flex flex-col items-center justify-center gap-2 px-4 py-2"
+          className="flex-1 min-h-0 flex flex-col items-center justify-center gap-1.5 px-4 py-1"
           onDragOver={e => e.preventDefault()}
           onDrop={handleDrop}
         >
@@ -208,7 +208,7 @@ function App() {
             onClick={() => setOrderSummaryOpen(true)}
             disabled={!hasDesign}
             className={`
-              font-game text-xs md:text-sm px-8 py-3 border-4 border-black rounded-2xl
+              font-game text-[10px] md:text-xs px-8 py-2.5 border-3 border-black rounded-xl
               transition-all duration-100 cursor-pointer
               ${hasDesign
                 ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-[5px_5px_0_black] hover:shadow-[6px_6px_0_black] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[2px_2px_0_black] active:translate-x-0.5 active:translate-y-0.5'

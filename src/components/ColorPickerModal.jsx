@@ -3,7 +3,7 @@ const SHIRT_COLORS = [
   { name: 'Light Gray', hex: '#C8C8C8' },
   { name: 'Dark Gray', hex: '#666666' },
   { name: 'Black', hex: '#1a1a1a' },
-  { name: 'Navy', hex: '#1B2A4A' },
+  { name: 'Navy', hex: '#264780' },
   { name: 'Royal Blue', hex: '#2563EB' },
   { name: 'Sky Blue', hex: '#7DD3FC' },
   { name: 'Red', hex: '#DC2626' },
@@ -55,7 +55,7 @@ export default function ColorPickerModal({ isOpen, onClose, currentColor, onColo
             >
               {currentColor === c.hex && (
                 <span className="text-lg drop-shadow-[0_0_2px_white]">
-                  {c.hex === '#1a1a1a' || c.hex === '#1B2A4A' || c.hex === '#7F1D1D' || c.hex === '#14532D' || c.hex === '#666666'
+                  {c.hex === '#1a1a1a' || c.hex === '#264780' || c.hex === '#7F1D1D' || c.hex === '#14532D' || c.hex === '#666666'
                     ? '✦'
                     : '✦'}
                 </span>

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import Header from './components/Header'
-import ShirtCanvas3D from './components/ShirtCanvas3D'
+import ShirtCanvas2D from './components/ShirtCanvas2D'
 import BuzzerButton from './components/BuzzerButton'
 import UploadModal from './components/UploadModal'
 import ColorPickerModal from './components/ColorPickerModal'
@@ -35,8 +35,9 @@ function App() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [originalFile, setOriginalFile] = useState(null)
   const [cartCount, setCartCount] = useState(0)
-  const [designScale, setDesignScale] = useState(1)
   const [shirtColor, setShirtColor] = useState('#C8C8C8')
+  const [frontLayout, setFrontLayout] = useState({ x: 50, y: 40, scale: 1.0 })
+  const [backLayout, setBackLayout] = useState({ x: 50, y: 40, scale: 1.0 })
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [libraryOpen, setLibraryOpen] = useState(false)
   const [selectedSize, setSelectedSize] = useState('M')
@@ -53,6 +54,14 @@ function App() {
     saveLibrary(library)
   }, [library])
 
+  const handleLayoutChange = useCallback((side, patch) => {
+    if (side === 'front') {
+      setFrontLayout(prev => ({ ...prev, ...patch }))
+    } else {
+      setBackLayout(prev => ({ ...prev, ...patch }))
+    }
+  }, [])
+
   const handleUpload = useCallback((file) => {
     setOriginalFile(file)
     const url = URL.createObjectURL(file)
@@ -61,7 +70,6 @@ function App() {
     } else {
       setBackDesign(url)
     }
-    setDesignScale(1)
   }, [activeSide])
 
   const handleSelectFromLibrary = useCallback((url) => {
@@ -71,7 +79,6 @@ function App() {
       setBackDesign(url)
     }
     setOriginalFile(null)
-    setDesignScale(1)
   }, [activeSide])
 
   const handleAddToLibrary = useCallback((categoryId, item) => {
@@ -105,8 +112,8 @@ function App() {
       shirtColor,
       selectedSize,
       quantity,
-      designScale,
-      designY: 22,
+      frontLayout,
+      backLayout,
     }
   }
 
@@ -140,28 +147,29 @@ function App() {
       <div className="dash-light red" style={{ right: '15%' }} />
       <div className="dash-light green" style={{ right: '18%' }} />
 
-      <div className="cockpit-content">
+      <div className="cockpit-content h-screen overflow-hidden">
         <Header cartCount={cartCount} level={1} />
 
         <main
-          className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6"
+          className="flex-1 min-h-0 flex flex-col items-center justify-center gap-2 px-4 py-2"
           onDragOver={e => e.preventDefault()}
           onDrop={handleDrop}
         >
-          <ShirtCanvas3D
+          <ShirtCanvas2D
+            activeSide={activeSide}
             frontDesign={frontDesign}
             backDesign={backDesign}
-            designScale={designScale}
-            onScaleChange={setDesignScale}
             shirtColor={shirtColor}
-            activeSide={activeSide}
+            frontLayout={frontLayout}
+            backLayout={backLayout}
+            onLayoutChange={handleLayoutChange}
           />
 
           {/* Front / Back selector */}
           <div className="flex gap-3">
             <button
               onClick={() => setActiveSide('front')}
-              className={`font-game text-[9px] md:text-[10px] px-4 md:px-5 py-2.5 border-2 rounded-lg transition-all cursor-pointer ${
+              className={`font-game text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 border-2 rounded-lg transition-all cursor-pointer ${
                 activeSide === 'front'
                   ? 'border-cyan-400 text-cyan-400 bg-cyan-400/10 shadow-[0_0_12px_rgba(0,255,255,0.3)]'
                   : 'border-gray-600 text-gray-400 hover:border-gray-400'
@@ -171,7 +179,7 @@ function App() {
             </button>
             <button
               onClick={() => setActiveSide('back')}
-              className={`font-game text-[9px] md:text-[10px] px-4 md:px-5 py-2.5 border-2 rounded-lg transition-all cursor-pointer ${
+              className={`font-game text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 border-2 rounded-lg transition-all cursor-pointer ${
                 activeSide === 'back'
                   ? 'border-pink-400 text-pink-400 bg-pink-400/10 shadow-[0_0_12px_rgba(255,0,255,0.3)]'
                   : 'border-gray-600 text-gray-400 hover:border-gray-400'
@@ -182,7 +190,7 @@ function App() {
           </div>
 
           {/* Buzzer buttons */}
-          <div className="flex items-end gap-4 md:gap-8 flex-wrap justify-center">
+          <div className="flex items-end gap-3 md:gap-6 flex-wrap justify-center">
             <BuzzerButton label="COLOR" color="pink" onClick={() => setColorPickerOpen(true)} />
             <BuzzerButton label="TEXT" color="cyan" onClick={() => {}} />
             <BuzzerButton label="UPLOAD" color="yellow" onClick={() => setUploadModalOpen(true)} />
@@ -200,7 +208,7 @@ function App() {
             onClick={() => setOrderSummaryOpen(true)}
             disabled={!hasDesign}
             className={`
-              font-game text-sm md:text-base px-10 py-4 border-4 border-black rounded-2xl
+              font-game text-xs md:text-sm px-8 py-3 border-4 border-black rounded-2xl
               transition-all duration-100 cursor-pointer
               ${hasDesign
                 ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-[5px_5px_0_black] hover:shadow-[6px_6px_0_black] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[2px_2px_0_black] active:translate-x-0.5 active:translate-y-0.5'
@@ -210,8 +218,6 @@ function App() {
           >
             ADD TO CART
           </button>
-
-          <p className="font-game text-[10px] text-cyan-400/50 mt-1">Unlock Achievements!</p>
         </main>
       </div>
 

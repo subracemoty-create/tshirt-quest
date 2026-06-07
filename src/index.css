@@ -216,7 +216,8 @@ body {
 .cockpit-content {
   position: relative;
   z-index: 6;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }

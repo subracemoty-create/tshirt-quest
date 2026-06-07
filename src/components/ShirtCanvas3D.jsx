@@ -94,7 +94,7 @@ function TShirt({ shirtColor, frontDesign, backDesign, frontLayout, backLayout, 
   return (
     <group position={[0, 0.45, 0]}>
       <mesh ref={meshRef} geometry={geometry}>
-        <meshStandardMaterial color={shirtColor} roughness={0.45} metalness={0.0} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={shirtColor} roughness={0.3} metalness={0.0} side={THREE.DoubleSide} />
       </mesh>
 
       {frontTex && (
@@ -131,10 +131,10 @@ function Scene({ frontDesign, backDesign, shirtColor, activeSide, frontLayout, b
 
   return (
     <>
-      <ambientLight intensity={1.6} />
-      <directionalLight position={[3, 5, 5]} intensity={1.4} />
-      <directionalLight position={[-3, 3, -4]} intensity={0.6} />
-      <pointLight position={[0, 2, 3]} intensity={0.5} />
+      <ambientLight intensity={2.5} />
+      <directionalLight position={[3, 5, 5]} intensity={2.0} />
+      <directionalLight position={[-3, 3, -4]} intensity={1.0} />
+      <pointLight position={[0, 2, 3]} intensity={0.8} />
       {/* Rim lights — edge highlights so dark shirts pop against dark backgrounds */}
       <pointLight position={[-2, 1, -1]} intensity={0.6} color="#4488ff" />
       <pointLight position={[2, 1, -1]} intensity={0.6} color="#4488ff" />

@@ -42,17 +42,17 @@ function TShirtSVG({ color }) {
         stroke="#00000030"
         strokeWidth="2"
       />
-      {/* Collar */}
+      {/* Collar — crew neck */}
       <path
         d={`
           M 188 60
-          Q 206 76, 228 80
-          Q 246 84, 260 84
-          Q 274 84, 292 80
-          Q 314 76, 332 60
+          Q 200 78, 224 84
+          Q 244 88, 260 88
+          Q 276 88, 296 84
+          Q 320 78, 332 60
         `}
         fill="none"
-        stroke="#00000018"
+        stroke="#00000020"
         strokeWidth="2.5"
       />
       {/* Armhole seams */}
@@ -100,7 +100,7 @@ export default function ShirtCanvas2D({
     <div className="flex flex-col items-center min-h-0 flex-1 select-none">
       {/* T-shirt area — fills available space, height-driven */}
       <div className="flex-1 min-h-0 w-full flex items-center justify-center">
-        <div className="relative h-full max-h-full" style={{ aspectRatio: '520 / 420' }}>
+        <div className="relative h-full max-w-md" style={{ aspectRatio: '520 / 420' }}>
           <TShirtSVG color={shirtColor} />
 
           {/* Design overlay */}

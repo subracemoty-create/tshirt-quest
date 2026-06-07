@@ -6,7 +6,7 @@ const PRESETS = {
   rightChest: { x: 38, y: 28, scale: 0.38, label: 'חזה ימין' },
 }
 
-const Y_STEP = 3
+const STEP = 3
 
 function TShirtSVG({ color }) {
   return (
@@ -90,9 +90,13 @@ export default function ShirtCanvas2D({
     update({ x: p.x, y: p.y, scale: p.scale })
   }, [update])
 
-  const nudgeY = useCallback((dir) => {
-    update({ y: Math.max(10, Math.min(85, layout.y + dir * Y_STEP)) })
-  }, [layout.y, update])
+  const nudge = useCallback((axis, dir) => {
+    if (axis === 'y') {
+      update({ y: Math.max(10, Math.min(85, layout.y + dir * STEP)) })
+    } else {
+      update({ x: Math.max(15, Math.min(85, layout.x + dir * STEP)) })
+    }
+  }, [layout.x, layout.y, update])
 
   const designSizePx = layout.scale * 55
 
@@ -162,17 +166,29 @@ export default function ShirtCanvas2D({
 
         <div className="w-px h-4 bg-cyan-500/30 mx-0.5" />
 
-        {/* Y nudge */}
+        {/* Direction pad */}
         <button
-          onClick={() => nudgeY(-1)}
+          onClick={() => nudge('x', -1)}
           className="font-game text-[8px] text-white hover:text-yellow-400 cursor-pointer px-0.5"
-          title="מעלה"
-        >▲</button>
+          title="שמאלה"
+        >◀</button>
+        <div className="flex flex-col gap-0.5">
+          <button
+            onClick={() => nudge('y', -1)}
+            className="font-game text-[7px] text-white hover:text-yellow-400 cursor-pointer leading-none"
+            title="מעלה"
+          >▲</button>
+          <button
+            onClick={() => nudge('y', 1)}
+            className="font-game text-[7px] text-white hover:text-yellow-400 cursor-pointer leading-none"
+            title="מטה"
+          >▼</button>
+        </div>
         <button
-          onClick={() => nudgeY(1)}
+          onClick={() => nudge('x', 1)}
           className="font-game text-[8px] text-white hover:text-yellow-400 cursor-pointer px-0.5"
-          title="מטה"
-        >▼</button>
+          title="ימינה"
+        >▶</button>
 
         <div className="w-px h-4 bg-cyan-500/30 mx-0.5" />
 

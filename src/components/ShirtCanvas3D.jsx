@@ -210,43 +210,43 @@ export default function ShirtCanvas3D({
       </Canvas>
 
       {/* Controls bar */}
-      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/85 backdrop-blur-sm rounded-xl px-2.5 py-1.5 border border-cyan-500/40">
+      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/85 backdrop-blur-sm rounded-xl px-4 py-2.5 border border-cyan-500/40">
         {/* Zoom */}
         <button
           onClick={() => update({ scale: Math.max(0.2, layout.scale - 0.1) })}
-          className="font-game text-[10px] text-white hover:text-cyan-400 cursor-pointer px-1"
+          className="font-game text-sm text-white hover:text-cyan-400 cursor-pointer px-1"
         >−</button>
-        <span className="font-game text-[7px] text-cyan-400 min-w-[2rem] text-center">
+        <span className="font-game text-[10px] text-cyan-400 min-w-[3rem] text-center">
           {Math.round(layout.scale * 100)}%
         </span>
         <button
           onClick={() => update({ scale: Math.min(2, layout.scale + 0.1) })}
-          className="font-game text-[10px] text-white hover:text-cyan-400 cursor-pointer px-1"
+          className="font-game text-sm text-white hover:text-cyan-400 cursor-pointer px-1"
         >+</button>
 
-        <div className="w-px h-4 bg-cyan-500/30 mx-0.5" />
+        <div className="w-px h-6 bg-cyan-500/30" />
 
         {/* Direction pad */}
         <button
           onClick={() => nudge('x', -1)}
-          className="font-game text-[8px] text-white hover:text-yellow-400 cursor-pointer px-0.5"
+          className="font-game text-xs text-white hover:text-yellow-400 cursor-pointer px-0.5"
         >◀</button>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1">
           <button
             onClick={() => nudge('y', 1)}
-            className="font-game text-[7px] text-white hover:text-yellow-400 cursor-pointer leading-none"
+            className="font-game text-[10px] text-white hover:text-yellow-400 cursor-pointer leading-none"
           >▲</button>
           <button
             onClick={() => nudge('y', -1)}
-            className="font-game text-[7px] text-white hover:text-yellow-400 cursor-pointer leading-none"
+            className="font-game text-[10px] text-white hover:text-yellow-400 cursor-pointer leading-none"
           >▼</button>
         </div>
         <button
           onClick={() => nudge('x', 1)}
-          className="font-game text-[8px] text-white hover:text-yellow-400 cursor-pointer px-0.5"
+          className="font-game text-xs text-white hover:text-yellow-400 cursor-pointer px-0.5"
         >▶</button>
 
-        <div className="w-px h-4 bg-cyan-500/30 mx-0.5" />
+        <div className="w-px h-6 bg-cyan-500/30" />
 
         {/* Presets */}
         {Object.entries(PRESETS).map(([key, p]) => (
@@ -254,7 +254,7 @@ export default function ShirtCanvas3D({
             key={key}
             onClick={() => applyPreset(key)}
             className={`
-              font-game text-[5px] md:text-[6px] px-1.5 py-0.5 rounded border cursor-pointer transition-all
+              font-game text-[8px] md:text-[9px] px-2.5 py-1 rounded border cursor-pointer transition-all
               ${matchesPreset(p)
                 ? 'border-cyan-400 text-cyan-400 bg-cyan-400/15'
                 : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-white'

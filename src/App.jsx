@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import Header from './components/Header'
-import ShirtCanvas from './components/ShirtCanvas'
+import ShirtCanvas3D from './components/ShirtCanvas3D'
 import BuzzerButton from './components/BuzzerButton'
 import UploadModal from './components/UploadModal'
 import ColorPickerModal from './components/ColorPickerModal'
@@ -8,6 +8,7 @@ import LibraryModal from './components/LibraryModal'
 import SizeQuantitySelector from './components/SizeQuantitySelector'
 import OrderSummaryModal from './components/OrderSummaryModal'
 import StarField from './components/StarField'
+import WhatsAppFloat from './components/WhatsAppFloat'
 
 const IS_ADMIN = true
 const LIBRARY_STORAGE_KEY = 'tshirt-quest-library'
@@ -32,11 +33,9 @@ function saveLibrary(library) {
 
 function App() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
-  const [designPreview, setDesignPreview] = useState(null)
   const [originalFile, setOriginalFile] = useState(null)
   const [cartCount, setCartCount] = useState(0)
   const [designScale, setDesignScale] = useState(1)
-  const [designY, setDesignY] = useState(22)
   const [shirtColor, setShirtColor] = useState('#C8C8C8')
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [libraryOpen, setLibraryOpen] = useState(false)
@@ -44,6 +43,11 @@ function App() {
   const [quantity, setQuantity] = useState(1)
   const [orderSummaryOpen, setOrderSummaryOpen] = useState(false)
   const [library, setLibrary] = useState(loadLibrary)
+  const [activeSide, setActiveSide] = useState('front')
+  const [frontDesign, setFrontDesign] = useState(null)
+  const [backDesign, setBackDesign] = useState(null)
+
+  const hasDesign = !!(frontDesign || backDesign)
 
   useEffect(() => {
     saveLibrary(library)
@@ -51,18 +55,24 @@ function App() {
 
   const handleUpload = useCallback((file) => {
     setOriginalFile(file)
-    const previewUrl = URL.createObjectURL(file)
-    setDesignPreview(previewUrl)
+    const url = URL.createObjectURL(file)
+    if (activeSide === 'front') {
+      setFrontDesign(url)
+    } else {
+      setBackDesign(url)
+    }
     setDesignScale(1)
-    setDesignY(22)
-  }, [])
+  }, [activeSide])
 
   const handleSelectFromLibrary = useCallback((url) => {
-    setDesignPreview(url)
+    if (activeSide === 'front') {
+      setFrontDesign(url)
+    } else {
+      setBackDesign(url)
+    }
     setOriginalFile(null)
     setDesignScale(1)
-    setDesignY(22)
-  }, [])
+  }, [activeSide])
 
   const handleAddToLibrary = useCallback((categoryId, item) => {
     setLibrary(prev => ({
@@ -89,12 +99,14 @@ function App() {
   function getPrintData() {
     return {
       originalFile,
-      designPreview,
+      designPreview: frontDesign || backDesign,
+      frontDesign,
+      backDesign,
       shirtColor,
       selectedSize,
       quantity,
       designScale,
-      designY,
+      designY: 22,
     }
   }
 
@@ -107,10 +119,8 @@ function App() {
 
   return (
     <>
-      {/* Stars visible through the window */}
       <StarField count={80} />
 
-      {/* UFO Cockpit frame layers */}
       <div className="cockpit-hull" />
       <div className="cockpit-top" />
       <div className="cockpit-bottom" />
@@ -118,7 +128,6 @@ function App() {
       <div className="cockpit-right" />
       <div className="window-frame" />
 
-      {/* Rivets on the hull corners */}
       <div className="rivet" style={{ top: '12%', left: '8%' }} />
       <div className="rivet" style={{ top: '12%', right: '8%' }} />
       <div className="rivet" style={{ bottom: '14%', left: '8%' }} />
@@ -126,29 +135,51 @@ function App() {
       <div className="rivet" style={{ top: '50%', left: '3.5%' }} />
       <div className="rivet" style={{ top: '50%', right: '3.5%' }} />
 
-      {/* Dashboard indicator lights */}
       <div className="dash-light green" style={{ left: '15%' }} />
       <div className="dash-light blue" style={{ left: '18%' }} />
       <div className="dash-light red" style={{ right: '15%' }} />
       <div className="dash-light green" style={{ right: '18%' }} />
 
-      {/* App content — visible through the cockpit window */}
       <div className="cockpit-content">
         <Header cartCount={cartCount} level={1} />
 
         <main
-          className="flex-1 flex flex-col items-center justify-center gap-6 px-4 py-6"
+          className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6"
           onDragOver={e => e.preventDefault()}
           onDrop={handleDrop}
         >
-          <ShirtCanvas
-            designPreview={designPreview}
+          <ShirtCanvas3D
+            frontDesign={frontDesign}
+            backDesign={backDesign}
             designScale={designScale}
             onScaleChange={setDesignScale}
-            designY={designY}
-            onDesignYChange={setDesignY}
             shirtColor={shirtColor}
+            activeSide={activeSide}
           />
+
+          {/* Front / Back selector */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setActiveSide('front')}
+              className={`font-game text-[9px] md:text-[10px] px-4 md:px-5 py-2.5 border-2 rounded-lg transition-all cursor-pointer ${
+                activeSide === 'front'
+                  ? 'border-cyan-400 text-cyan-400 bg-cyan-400/10 shadow-[0_0_12px_rgba(0,255,255,0.3)]'
+                  : 'border-gray-600 text-gray-400 hover:border-gray-400'
+              }`}
+            >
+              FRONT GRAPHIC
+            </button>
+            <button
+              onClick={() => setActiveSide('back')}
+              className={`font-game text-[9px] md:text-[10px] px-4 md:px-5 py-2.5 border-2 rounded-lg transition-all cursor-pointer ${
+                activeSide === 'back'
+                  ? 'border-pink-400 text-pink-400 bg-pink-400/10 shadow-[0_0_12px_rgba(255,0,255,0.3)]'
+                  : 'border-gray-600 text-gray-400 hover:border-gray-400'
+              }`}
+            >
+              BACK GRAPHIC
+            </button>
+          </div>
 
           {/* Buzzer buttons */}
           <div className="flex items-end gap-4 md:gap-8 flex-wrap justify-center">
@@ -158,7 +189,6 @@ function App() {
             <BuzzerButton label="LIBRARY" color="purple" onClick={() => setLibraryOpen(true)} />
           </div>
 
-          {/* Size & Quantity */}
           <SizeQuantitySelector
             selectedSize={selectedSize}
             onSizeChange={setSelectedSize}
@@ -166,14 +196,13 @@ function App() {
             onQuantityChange={setQuantity}
           />
 
-          {/* Add to Cart */}
           <button
             onClick={() => setOrderSummaryOpen(true)}
-            disabled={!designPreview}
+            disabled={!hasDesign}
             className={`
               font-game text-sm md:text-base px-10 py-4 border-4 border-black rounded-2xl
               transition-all duration-100 cursor-pointer
-              ${designPreview
+              ${hasDesign
                 ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-[5px_5px_0_black] hover:shadow-[6px_6px_0_black] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[2px_2px_0_black] active:translate-x-0.5 active:translate-y-0.5'
                 : 'bg-gray-300 text-gray-500 shadow-[3px_3px_0_gray] cursor-not-allowed'
               }
@@ -186,7 +215,6 @@ function App() {
         </main>
       </div>
 
-      {/* Modals */}
       <UploadModal
         isOpen={uploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
@@ -216,6 +244,8 @@ function App() {
         onConfirm={handleConfirmOrder}
         order={getPrintData()}
       />
+
+      <WhatsAppFloat />
     </>
   )
 }

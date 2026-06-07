@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import Header from './components/Header'
-import ShirtCanvas2D from './components/ShirtCanvas2D'
+import ShirtCanvas3D from './components/ShirtCanvas3D'
 import BuzzerButton from './components/BuzzerButton'
 import UploadModal from './components/UploadModal'
 import ColorPickerModal from './components/ColorPickerModal'
@@ -35,9 +35,8 @@ function App() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [originalFile, setOriginalFile] = useState(null)
   const [cartCount, setCartCount] = useState(0)
+  const [designScale, setDesignScale] = useState(1)
   const [shirtColor, setShirtColor] = useState('#C8C8C8')
-  const [frontLayout, setFrontLayout] = useState({ x: 50, y: 40, scale: 1.0 })
-  const [backLayout, setBackLayout] = useState({ x: 50, y: 40, scale: 1.0 })
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [libraryOpen, setLibraryOpen] = useState(false)
   const [selectedSize, setSelectedSize] = useState('M')
@@ -53,14 +52,6 @@ function App() {
   useEffect(() => {
     saveLibrary(library)
   }, [library])
-
-  const handleLayoutChange = useCallback((side, patch) => {
-    if (side === 'front') {
-      setFrontLayout(prev => ({ ...prev, ...patch }))
-    } else {
-      setBackLayout(prev => ({ ...prev, ...patch }))
-    }
-  }, [])
 
   const handleUpload = useCallback((file) => {
     setOriginalFile(file)
@@ -112,8 +103,8 @@ function App() {
       shirtColor,
       selectedSize,
       quantity,
-      frontLayout,
-      backLayout,
+      designScale,
+      designY: 22,
     }
   }
 
@@ -155,14 +146,13 @@ function App() {
           onDragOver={e => e.preventDefault()}
           onDrop={handleDrop}
         >
-          <ShirtCanvas2D
-            activeSide={activeSide}
+          <ShirtCanvas3D
             frontDesign={frontDesign}
             backDesign={backDesign}
+            designScale={designScale}
+            onScaleChange={setDesignScale}
             shirtColor={shirtColor}
-            frontLayout={frontLayout}
-            backLayout={backLayout}
-            onLayoutChange={handleLayoutChange}
+            activeSide={activeSide}
           />
 
           {/* Front / Back selector */}

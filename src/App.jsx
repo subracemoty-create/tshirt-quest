@@ -189,8 +189,8 @@ function App() {
               onClick={() => setActiveSide('front')}
               className={`font-game text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 border-2 rounded-lg transition-all cursor-pointer ${
                 activeSide === 'front'
-                  ? 'border-cyan-400 text-cyan-400 bg-cyan-400/10 shadow-[0_0_12px_rgba(0,255,255,0.3)]'
-                  : 'border-gray-600 text-gray-400 hover:border-gray-400'
+                  ? 'border-cyan-400 text-cyan-400 bg-black/80 shadow-[0_0_12px_rgba(0,255,255,0.3)]'
+                  : 'border-gray-600 text-gray-400 bg-black/60 hover:border-gray-400'
               }`}
             >
               FRONT GRAPHIC
@@ -199,8 +199,8 @@ function App() {
               onClick={() => setActiveSide('back')}
               className={`font-game text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 border-2 rounded-lg transition-all cursor-pointer ${
                 activeSide === 'back'
-                  ? 'border-pink-400 text-pink-400 bg-pink-400/10 shadow-[0_0_12px_rgba(255,0,255,0.3)]'
-                  : 'border-gray-600 text-gray-400 hover:border-gray-400'
+                  ? 'border-pink-400 text-pink-400 bg-black/80 shadow-[0_0_12px_rgba(255,0,255,0.3)]'
+                  : 'border-gray-600 text-gray-400 bg-black/60 hover:border-gray-400'
               }`}
             >
               BACK GRAPHIC

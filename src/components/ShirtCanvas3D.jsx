@@ -210,7 +210,7 @@ export default function ShirtCanvas3D({
       </Canvas>
 
       {/* Controls bar */}
-      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 backdrop-blur rounded-xl px-2.5 py-1.5 border border-cyan-500/30">
+      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/85 backdrop-blur-sm rounded-xl px-2.5 py-1.5 border border-cyan-500/40">
         {/* Zoom */}
         <button
           onClick={() => update({ scale: Math.max(0.2, layout.scale - 0.1) })}

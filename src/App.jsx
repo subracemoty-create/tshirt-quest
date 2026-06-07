@@ -35,8 +35,9 @@ function App() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [originalFile, setOriginalFile] = useState(null)
   const [cartCount, setCartCount] = useState(0)
-  const [designScale, setDesignScale] = useState(1)
   const [shirtColor, setShirtColor] = useState('#C8C8C8')
+  const [frontLayout, setFrontLayout] = useState({ x: 0, y: 0.1, scale: 1.0 })
+  const [backLayout, setBackLayout] = useState({ x: 0, y: 0.1, scale: 1.0 })
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [libraryOpen, setLibraryOpen] = useState(false)
   const [selectedSize, setSelectedSize] = useState('M')
@@ -52,6 +53,14 @@ function App() {
   useEffect(() => {
     saveLibrary(library)
   }, [library])
+
+  const handleLayoutChange = useCallback((side, patch) => {
+    if (side === 'front') {
+      setFrontLayout(prev => ({ ...prev, ...patch }))
+    } else {
+      setBackLayout(prev => ({ ...prev, ...patch }))
+    }
+  }, [])
 
   const handleUpload = useCallback((file) => {
     setOriginalFile(file)
@@ -103,8 +112,8 @@ function App() {
       shirtColor,
       selectedSize,
       quantity,
-      designScale,
-      designY: 22,
+      frontLayout,
+      backLayout,
     }
   }
 
@@ -149,10 +158,11 @@ function App() {
           <ShirtCanvas3D
             frontDesign={frontDesign}
             backDesign={backDesign}
-            designScale={designScale}
-            onScaleChange={setDesignScale}
             shirtColor={shirtColor}
             activeSide={activeSide}
+            frontLayout={frontLayout}
+            backLayout={backLayout}
+            onLayoutChange={handleLayoutChange}
           />
 
           {/* Front / Back selector */}

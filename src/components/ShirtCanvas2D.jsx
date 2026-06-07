@@ -98,50 +98,50 @@ export default function ShirtCanvas2D({
 
   return (
     <div className="flex flex-col items-center min-h-0 flex-1 select-none">
-      {/* T-shirt area — fills available space */}
-      <div className="relative w-full max-w-sm flex-1 min-h-0">
-        <div className="absolute inset-0">
+      {/* T-shirt area — fills available space, height-driven */}
+      <div className="flex-1 min-h-0 w-full flex items-center justify-center">
+        <div className="relative h-full max-h-full" style={{ aspectRatio: '520 / 420' }}>
           <TShirtSVG color={shirtColor} />
-        </div>
 
-        {/* Design overlay */}
-        {design && (
-          <img
-            src={design}
-            alt="Design"
-            draggable={false}
-            className="absolute pointer-events-none"
-            style={{
-              width: `${designSizePx}%`,
-              left: `${layout.x}%`,
-              top: `${layout.y}%`,
-              transform: 'translate(-50%, -50%)',
-              maxHeight: '60%',
-              objectFit: 'contain',
-            }}
-          />
-        )}
+          {/* Design overlay */}
+          {design && (
+            <img
+              src={design}
+              alt="Design"
+              draggable={false}
+              className="absolute pointer-events-none"
+              style={{
+                width: `${designSizePx}%`,
+                left: `${layout.x}%`,
+                top: `${layout.y}%`,
+                transform: 'translate(-50%, -50%)',
+                maxHeight: '60%',
+                objectFit: 'contain',
+              }}
+            />
+          )}
 
-        {/* "Drag & Drop" hint when no design */}
-        {!design && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="font-game text-[9px] md:text-[10px] text-cyan-400/60 text-center leading-relaxed mt-[-10%]">
-              Drag &amp; Drop your<br />design here
-            </p>
+          {/* "Drag & Drop" hint when no design */}
+          {!design && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <p className="font-game text-[9px] md:text-[10px] text-cyan-400/60 text-center leading-relaxed mt-[-10%]">
+                Drag &amp; Drop your<br />design here
+              </p>
+            </div>
+          )}
+
+          {/* Side indicator badge */}
+          <div className="absolute top-1 right-1">
+            <span className={`
+              font-game text-[6px] px-1.5 py-0.5 rounded border
+              ${activeSide === 'front'
+                ? 'border-cyan-500/40 text-cyan-400 bg-cyan-400/10'
+                : 'border-pink-500/40 text-pink-400 bg-pink-400/10'
+              }
+            `}>
+              {activeSide === 'front' ? 'FRONT' : 'BACK'}
+            </span>
           </div>
-        )}
-
-        {/* Side indicator badge */}
-        <div className="absolute top-1 right-1">
-          <span className={`
-            font-game text-[6px] px-1.5 py-0.5 rounded border
-            ${activeSide === 'front'
-              ? 'border-cyan-500/40 text-cyan-400 bg-cyan-400/10'
-              : 'border-pink-500/40 text-pink-400 bg-pink-400/10'
-            }
-          `}>
-            {activeSide === 'front' ? 'FRONT' : 'BACK'}
-          </span>
         </div>
       </div>
 

@@ -192,17 +192,8 @@ export default function ShirtCanvas3D({
     Math.abs(layout.y - p.y) < 0.005 &&
     Math.abs(layout.scale - p.scale) < 0.005
 
-  const dark = isDarkColor(shirtColor)
-
   return (
-    <div
-      className="w-full max-w-md aspect-[4/5] relative flex-1 min-h-0 rounded-2xl transition-all duration-700"
-      style={{
-        background: dark
-          ? 'radial-gradient(ellipse at 50% 40%, #87CEEB 0%, #5DADE2 30%, #2E86C1 60%, #1B4F72 100%)'
-          : 'transparent',
-      }}
-    >
+    <div className="w-full max-w-md aspect-[4/5] relative flex-1 min-h-0">
       <Canvas
         camera={{ position: [0, 0.5, 2.5], fov: 35 }}
         gl={{ alpha: true, antialias: true }}

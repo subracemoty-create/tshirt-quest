@@ -27,6 +27,52 @@ body {
   position: relative;
 }
 
+/* ===== ANIMATED SKY (for dark shirts) ===== */
+.sky-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(135,206,235,0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(93,173,226,0.3) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 80%, rgba(46,134,193,0.25) 0%, transparent 50%),
+    linear-gradient(180deg, #1a3a5c 0%, #2e6da4 30%, #87CEEB 60%, #5DADE2 85%, #2471A3 100%);
+  animation: sky-drift 12s ease-in-out infinite alternate;
+}
+
+.sky-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 40% at 25% 30%, rgba(255,255,255,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 30% at 75% 50%, rgba(255,255,255,0.08) 0%, transparent 60%);
+  animation: cloud-float 18s ease-in-out infinite alternate;
+}
+
+.sky-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 25% at 60% 25%, rgba(255,255,255,0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 35% at 35% 65%, rgba(255,255,255,0.06) 0%, transparent 60%);
+  animation: cloud-float 24s ease-in-out 4s infinite alternate-reverse;
+}
+
+@keyframes sky-drift {
+  0%   { background-position: 0% 0%; filter: brightness(0.95); }
+  50%  { filter: brightness(1.05); }
+  100% { background-position: 5% 3%; filter: brightness(1.0); }
+}
+
+@keyframes cloud-float {
+  0%   { transform: translateX(-3%) translateY(0); opacity: 0.7; }
+  50%  { opacity: 1; }
+  100% { transform: translateX(3%) translateY(-2%); opacity: 0.8; }
+}
+
 /* ===== STARS ===== */
 .stars-layer {
   position: fixed;

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import Header from './components/Header'
 import ShirtCanvas3D from './components/ShirtCanvas3D'
 import BuzzerButton from './components/BuzzerButton'
@@ -9,6 +9,14 @@ import SizeQuantitySelector from './components/SizeQuantitySelector'
 import OrderSummaryModal from './components/OrderSummaryModal'
 import StarField from './components/StarField'
 import WhatsAppFloat from './components/WhatsAppFloat'
+
+function isDarkColor(hex) {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.substring(0, 2), 16)
+  const g = parseInt(c.substring(2, 4), 16)
+  const b = parseInt(c.substring(4, 6), 16)
+  return (r * 0.299 + g * 0.587 + b * 0.114) < 100
+}
 
 const IS_ADMIN = true
 const LIBRARY_STORAGE_KEY = 'tshirt-quest-library'
@@ -49,6 +57,7 @@ function App() {
   const [backDesign, setBackDesign] = useState(null)
 
   const hasDesign = !!(frontDesign || backDesign)
+  const darkShirt = useMemo(() => isDarkColor(shirtColor), [shirtColor])
 
   useEffect(() => {
     saveLibrary(library)
@@ -126,7 +135,7 @@ function App() {
 
   return (
     <>
-      <StarField count={80} />
+      {darkShirt ? <div className="sky-bg" /> : <StarField count={80} />}
 
       <div className="cockpit-hull" />
       <div className="cockpit-top" />

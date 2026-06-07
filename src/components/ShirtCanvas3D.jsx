@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { OrbitControls, Edges } from '@react-three/drei'
 import { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import * as THREE from 'three'
 
@@ -86,7 +86,8 @@ function TShirt({ shirtColor, frontDesign, backDesign, frontLayout, backLayout, 
   return (
     <group position={[0, 0.45, 0]}>
       <mesh ref={meshRef} geometry={geometry}>
-        <meshStandardMaterial color={shirtColor} roughness={0.8} metalness={0.0} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={shirtColor} roughness={0.7} metalness={0.05} side={THREE.DoubleSide} />
+        <Edges threshold={15} color="#4488ff" lineWidth={0.6} />
       </mesh>
 
       {frontTex && (
@@ -123,10 +124,14 @@ function Scene({ frontDesign, backDesign, shirtColor, activeSide, frontLayout, b
 
   return (
     <>
-      <ambientLight intensity={0.7} />
+      <ambientLight intensity={0.8} />
       <directionalLight position={[3, 5, 5]} intensity={1.0} />
-      <directionalLight position={[-3, 3, -4]} intensity={0.3} />
+      <directionalLight position={[-3, 3, -4]} intensity={0.4} />
       <pointLight position={[0, 2, 3]} intensity={0.3} />
+      {/* Rim lights — edge highlights so dark shirts pop against dark backgrounds */}
+      <pointLight position={[-2, 1, -1]} intensity={0.6} color="#4488ff" />
+      <pointLight position={[2, 1, -1]} intensity={0.6} color="#4488ff" />
+      <pointLight position={[0, -1, 2]} intensity={0.4} color="#6644cc" />
 
       <TShirt
         shirtColor={shirtColor}

@@ -137,28 +137,10 @@ function App() {
     <>
       {darkShirt ? (
         <div className="sky-bg">
-          {[
-            { w: 120, h: 40, top: '15%', dur: 35, delay: 0 },
-            { w: 180, h: 55, top: '25%', dur: 45, delay: 8 },
-            { w: 90,  h: 30, top: '10%', dur: 30, delay: 4 },
-            { w: 150, h: 45, top: '40%', dur: 50, delay: 15 },
-            { w: 100, h: 35, top: '55%', dur: 38, delay: 22 },
-            { w: 200, h: 60, top: '20%', dur: 55, delay: 12 },
-            { w: 80,  h: 28, top: '35%', dur: 32, delay: 28 },
-            { w: 160, h: 50, top: '50%', dur: 42, delay: 5 },
-          ].map((c, i) => (
-            <div
-              key={i}
-              className="cloud"
-              style={{
-                width: c.w,
-                height: c.h,
-                top: c.top,
-                animationDuration: `${c.dur}s`,
-                animationDelay: `${c.delay}s`,
-              }}
-            />
-          ))}
+          <div className="cloud-layer far" />
+          <div className="cloud-layer mid" />
+          <div className="cloud-layer near" />
+          <div className="cloud-layer haze" />
         </div>
       ) : (
         <StarField count={80} />

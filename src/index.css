@@ -33,46 +33,77 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, #1565C0 0%, #42A5F5 35%, #90CAF9 55%, #E3F2FD 80%, #BBDEFB 100%);
+  background: linear-gradient(180deg, #0d47a1 0%, #1976D2 20%, #42A5F5 45%, #90CAF9 70%, #E1F5FE 100%);
   overflow: hidden;
 }
 
-.cloud {
+/* Parallax cloud layers — soft volumetric look */
+.cloud-layer {
   position: absolute;
-  background: white;
-  border-radius: 50%;
-  filter: blur(1px);
-  opacity: 0;
-  animation: cloud-drift linear infinite;
+  inset: 0;
+  background-repeat: repeat-x;
+  background-size: 200% 100%;
+  will-change: transform;
 }
 
-.cloud::before,
-.cloud::after {
-  content: '';
-  position: absolute;
-  background: white;
-  border-radius: 50%;
+/* Far layer — thin wispy cirrus */
+.cloud-layer.far {
+  background-image:
+    radial-gradient(ellipse 18% 6% at 10% 22%, rgba(255,255,255,0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 25% 5% at 35% 18%, rgba(255,255,255,0.25) 0%, transparent 70%),
+    radial-gradient(ellipse 15% 4% at 55% 25%, rgba(255,255,255,0.3) 0%, transparent 70%),
+    radial-gradient(ellipse 20% 5% at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 70%),
+    radial-gradient(ellipse 12% 3% at 92% 15%, rgba(255,255,255,0.25) 0%, transparent 70%);
+  animation: drift-slow 120s linear infinite;
+  opacity: 0.8;
 }
 
-.cloud::before {
-  width: 70%;
-  height: 80%;
-  top: -35%;
-  left: 15%;
+/* Mid layer — soft cumulus */
+.cloud-layer.mid {
+  background-image:
+    radial-gradient(ellipse 14% 10% at 8% 45%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 40%, transparent 70%),
+    radial-gradient(ellipse 10% 8% at 15% 42%, rgba(255,255,255,0.5) 0%, transparent 65%),
+    radial-gradient(ellipse 18% 12% at 40% 50%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 45%, transparent 70%),
+    radial-gradient(ellipse 12% 9% at 48% 47%, rgba(255,255,255,0.45) 0%, transparent 65%),
+    radial-gradient(ellipse 16% 11% at 72% 48%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.12) 40%, transparent 70%),
+    radial-gradient(ellipse 9% 7% at 78% 44%, rgba(255,255,255,0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 13% 9% at 95% 52%, rgba(255,255,255,0.45) 0%, transparent 65%);
+  animation: drift-mid 80s linear infinite;
+  opacity: 0.9;
 }
 
-.cloud::after {
-  width: 50%;
-  height: 65%;
-  top: -20%;
-  right: 10%;
+/* Near layer — thick, defined clouds with shadow */
+.cloud-layer.near {
+  background-image:
+    radial-gradient(ellipse 12% 14% at 5% 68%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 40%, transparent 65%),
+    radial-gradient(ellipse 8% 10% at 10% 65%, rgba(255,255,255,0.65) 0%, transparent 60%),
+    radial-gradient(ellipse 15% 16% at 30% 72%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.2) 45%, transparent 70%),
+    radial-gradient(ellipse 10% 12% at 37% 68%, rgba(255,255,255,0.6) 0%, transparent 55%),
+    radial-gradient(ellipse 13% 15% at 62% 70%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.15) 40%, transparent 65%),
+    radial-gradient(ellipse 9% 11% at 68% 66%, rgba(255,255,255,0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 11% 13% at 88% 74%, rgba(255,255,255,0.65) 0%, transparent 60%);
+  animation: drift-near 50s linear infinite;
 }
 
-@keyframes cloud-drift {
-  0%   { transform: translateX(-120%); opacity: 0; }
-  5%   { opacity: 0.85; }
-  90%  { opacity: 0.85; }
-  100% { transform: translateX(calc(100vw + 120%)); opacity: 0; }
+/* Bottom haze */
+.cloud-layer.haze {
+  background: linear-gradient(0deg, rgba(255,255,255,0.15) 0%, transparent 30%);
+  animation: none;
+}
+
+@keyframes drift-slow {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes drift-mid {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes drift-near {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 
 /* ===== STARS ===== */

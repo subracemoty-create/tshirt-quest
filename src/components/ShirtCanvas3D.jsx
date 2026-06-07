@@ -3,6 +3,14 @@ import { OrbitControls, Edges } from '@react-three/drei'
 import { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import * as THREE from 'three'
 
+function isDarkColor(hex) {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.substring(0, 2), 16)
+  const g = parseInt(c.substring(2, 4), 16)
+  const b = parseInt(c.substring(4, 6), 16)
+  return (r * 0.299 + g * 0.587 + b * 0.114) < 100
+}
+
 const PRESETS = {
   center:     { x: 0,     y: 0.1,  scale: 1.0,  label: 'מרכז' },
   leftChest:  { x: 0.08,  y: 0.22, scale: 0.38, label: 'חזה שמאל' },
@@ -87,7 +95,6 @@ function TShirt({ shirtColor, frontDesign, backDesign, frontLayout, backLayout, 
     <group position={[0, 0.45, 0]}>
       <mesh ref={meshRef} geometry={geometry}>
         <meshStandardMaterial color={shirtColor} roughness={0.7} metalness={0.05} side={THREE.DoubleSide} />
-        <Edges threshold={15} color="#4488ff" lineWidth={0.6} />
       </mesh>
 
       {frontTex && (
@@ -185,8 +192,17 @@ export default function ShirtCanvas3D({
     Math.abs(layout.y - p.y) < 0.005 &&
     Math.abs(layout.scale - p.scale) < 0.005
 
+  const dark = isDarkColor(shirtColor)
+
   return (
-    <div className="w-full max-w-md aspect-[4/5] relative flex-1 min-h-0">
+    <div
+      className="w-full max-w-md aspect-[4/5] relative flex-1 min-h-0 rounded-2xl transition-all duration-700"
+      style={{
+        background: dark
+          ? 'radial-gradient(ellipse at 50% 40%, #87CEEB 0%, #5DADE2 30%, #2E86C1 60%, #1B4F72 100%)'
+          : 'transparent',
+      }}
+    >
       <Canvas
         camera={{ position: [0, 0.5, 2.5], fov: 35 }}
         gl={{ alpha: true, antialias: true }}

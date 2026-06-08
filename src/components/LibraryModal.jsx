@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const CATEGORIES = [
   { id: 'music', label: 'Music', emoji: '🎵' },
@@ -24,6 +24,14 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
   const [pinError, setPinError] = useState(false)
   const fileInputRef = useRef(null)
   const pinInputRef = useRef(null)
+
+  useEffect(() => {
+    if (!isOpen) {
+      setPinPromptOpen(false)
+      setPinValue('')
+      setPinError(false)
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 

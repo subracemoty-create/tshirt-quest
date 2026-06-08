@@ -1,13 +1,8 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Header from './components/Header'
-import ShirtCanvas3D from './components/ShirtCanvas3D'
-import BuzzerButton from './components/BuzzerButton'
-import UploadModal from './components/UploadModal'
-import ColorPickerModal from './components/ColorPickerModal'
-import LibraryModal from './components/LibraryModal'
-import TextPanel from './components/TextPanel'
-import SizeQuantitySelector from './components/SizeQuantitySelector'
-import OrderSummaryModal from './components/OrderSummaryModal'
+import TshirtCanvas from './components/TshirtCanvas'
+import ControlPanel from './components/ControlPanel'
+import OrderSelector from './components/OrderSelector'
 import StarField from './components/StarField'
 import WhatsAppFloat from './components/WhatsAppFloat'
 
@@ -42,6 +37,7 @@ function saveLibrary(library) {
 }
 
 function App() {
+  /* ── State ── */
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [originalFile, setOriginalFile] = useState(null)
   const [cartCount, setCartCount] = useState(0)
@@ -61,14 +57,15 @@ function App() {
   const [frontTextSettings, setFrontTextSettings] = useState({ ...DEFAULT_TEXT })
   const [backTextSettings, setBackTextSettings] = useState({ ...DEFAULT_TEXT })
 
+  /* ── Derived ── */
   const activeTextSettings = activeSide === 'front' ? frontTextSettings : backTextSettings
   const hasContent = !!(frontDesign || backDesign || frontTextSettings.text.trim() || backTextSettings.text.trim())
   const darkShirt = useMemo(() => isDarkColor(shirtColor), [shirtColor])
 
-  useEffect(() => {
-    saveLibrary(library)
-  }, [library])
+  /* ── Side effects ── */
+  useEffect(() => { saveLibrary(library) }, [library])
 
+  /* ── Handlers ── */
   const handleLayoutChange = useCallback((side, patch) => {
     if (side === 'front') {
       setFrontLayout(prev => ({ ...prev, ...patch }))
@@ -149,6 +146,7 @@ function App() {
     console.log('[T-Shirt Quest] Order confirmed — print data:', printData)
   }
 
+  /* ── Render ── */
   return (
     <>
       {darkShirt ? (
@@ -189,11 +187,12 @@ function App() {
           onDragOver={e => e.preventDefault()}
           onDrop={handleDrop}
         >
-          <ShirtCanvas3D
+          <TshirtCanvas
             frontDesign={frontDesign}
             backDesign={backDesign}
             shirtColor={shirtColor}
             activeSide={activeSide}
+            onActiveSideChange={setActiveSide}
             frontLayout={frontLayout}
             backLayout={backLayout}
             onLayoutChange={handleLayoutChange}
@@ -201,99 +200,46 @@ function App() {
             backTextSettings={backTextSettings}
           />
 
-          {/* Front / Back selector */}
-          <div className="flex gap-3">
-            <button
-              onClick={() => setActiveSide('front')}
-              className={`font-game text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 border-2 rounded-lg transition-all cursor-pointer ${
-                activeSide === 'front'
-                  ? 'border-cyan-400 text-cyan-400 bg-black/80 shadow-[0_0_12px_rgba(0,255,255,0.3)]'
-                  : 'border-gray-600 text-gray-400 bg-black/60 hover:border-gray-400'
-              }`}
-            >
-              FRONT GRAPHIC
-            </button>
-            <button
-              onClick={() => setActiveSide('back')}
-              className={`font-game text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 border-2 rounded-lg transition-all cursor-pointer ${
-                activeSide === 'back'
-                  ? 'border-pink-400 text-pink-400 bg-black/80 shadow-[0_0_12px_rgba(255,0,255,0.3)]'
-                  : 'border-gray-600 text-gray-400 bg-black/60 hover:border-gray-400'
-              }`}
-            >
-              BACK GRAPHIC
-            </button>
-          </div>
+          <ControlPanel
+            colorPickerOpen={colorPickerOpen}
+            onColorPickerOpen={() => setColorPickerOpen(true)}
+            onColorPickerClose={() => setColorPickerOpen(false)}
+            shirtColor={shirtColor}
+            onColorSelect={setShirtColor}
+            textPanelOpen={textPanelOpen}
+            onTextPanelOpen={() => setTextPanelOpen(true)}
+            onTextPanelClose={() => setTextPanelOpen(false)}
+            activeTextSettings={activeTextSettings}
+            onTextChange={handleTextChange}
+            activeSide={activeSide}
+            uploadModalOpen={uploadModalOpen}
+            onUploadModalOpen={() => setUploadModalOpen(true)}
+            onUploadModalClose={() => setUploadModalOpen(false)}
+            onUpload={handleUpload}
+            libraryOpen={libraryOpen}
+            onLibraryOpen={() => setLibraryOpen(true)}
+            onLibraryClose={() => setLibraryOpen(false)}
+            onSelectDesign={handleSelectFromLibrary}
+            library={library}
+            onAddToLibrary={handleAddToLibrary}
+            onRemoveFromLibrary={handleRemoveFromLibrary}
+            isAdmin={IS_ADMIN}
+          />
 
-          {/* Buzzer buttons */}
-          <div className="flex items-end gap-3 md:gap-6 flex-wrap justify-center">
-            <BuzzerButton label="COLOR" color="pink" onClick={() => setColorPickerOpen(true)} />
-            <BuzzerButton label="TEXT" color="cyan" onClick={() => setTextPanelOpen(true)} />
-            <BuzzerButton label="UPLOAD" color="yellow" onClick={() => setUploadModalOpen(true)} />
-            <BuzzerButton label="LIBRARY" color="purple" onClick={() => setLibraryOpen(true)} />
-          </div>
-
-          <SizeQuantitySelector
+          <OrderSelector
             selectedSize={selectedSize}
             onSizeChange={setSelectedSize}
             quantity={quantity}
             onQuantityChange={setQuantity}
+            hasContent={hasContent}
+            orderSummaryOpen={orderSummaryOpen}
+            onOrderSummaryOpen={() => setOrderSummaryOpen(true)}
+            onOrderSummaryClose={() => setOrderSummaryOpen(false)}
+            onConfirmOrder={handleConfirmOrder}
+            orderData={getPrintData()}
           />
-
-          <button
-            onClick={() => setOrderSummaryOpen(true)}
-            disabled={!hasContent}
-            className={`
-              font-game text-[10px] md:text-xs px-8 py-2.5 border-3 border-black rounded-xl
-              transition-all duration-100 cursor-pointer
-              ${hasContent
-                ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-[5px_5px_0_black] hover:shadow-[6px_6px_0_black] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[2px_2px_0_black] active:translate-x-0.5 active:translate-y-0.5'
-                : 'bg-gray-300 text-gray-500 shadow-[3px_3px_0_gray] cursor-not-allowed'
-              }
-            `}
-          >
-            ADD TO CART
-          </button>
         </main>
       </div>
-
-      <UploadModal
-        isOpen={uploadModalOpen}
-        onClose={() => setUploadModalOpen(false)}
-        onUpload={handleUpload}
-      />
-
-      <ColorPickerModal
-        isOpen={colorPickerOpen}
-        onClose={() => setColorPickerOpen(false)}
-        currentColor={shirtColor}
-        onColorSelect={setShirtColor}
-      />
-
-      <TextPanel
-        isOpen={textPanelOpen}
-        onClose={() => setTextPanelOpen(false)}
-        textSettings={activeTextSettings}
-        onTextChange={handleTextChange}
-        activeSide={activeSide}
-      />
-
-      <LibraryModal
-        isOpen={libraryOpen}
-        onClose={() => setLibraryOpen(false)}
-        onSelectDesign={handleSelectFromLibrary}
-        library={library}
-        onAddToLibrary={handleAddToLibrary}
-        onRemoveFromLibrary={handleRemoveFromLibrary}
-        isAdmin={IS_ADMIN}
-      />
-
-      <OrderSummaryModal
-        isOpen={orderSummaryOpen}
-        onClose={() => setOrderSummaryOpen(false)}
-        onConfirm={handleConfirmOrder}
-        order={getPrintData()}
-      />
 
       <WhatsAppFloat />
     </>

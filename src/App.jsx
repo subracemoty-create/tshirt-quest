@@ -240,7 +240,7 @@ function App() {
             onUpload={handleUpload}
             libraryOpen={libraryOpen}
             onLibraryOpen={() => setLibraryOpen(true)}
-            onLibraryClose={() => setLibraryOpen(false)}
+            onLibraryClose={() => { setLibraryOpen(false); setIsAdmin(false) }}
             onSelectDesign={handleSelectFromLibrary}
             library={library}
             onAddToLibrary={handleAddToLibrary}

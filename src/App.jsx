@@ -5,6 +5,7 @@ import BuzzerButton from './components/BuzzerButton'
 import UploadModal from './components/UploadModal'
 import ColorPickerModal from './components/ColorPickerModal'
 import LibraryModal from './components/LibraryModal'
+import TextPanel from './components/TextPanel'
 import SizeQuantitySelector from './components/SizeQuantitySelector'
 import OrderSummaryModal from './components/OrderSummaryModal'
 import StarField from './components/StarField'
@@ -20,6 +21,7 @@ function isDarkColor(hex) {
 
 const IS_ADMIN = true
 const LIBRARY_STORAGE_KEY = 'tshirt-quest-library'
+const DEFAULT_TEXT = { text: '', color: '#000000', font: 'Rubik', curved: false }
 
 function loadLibrary() {
   try {
@@ -48,6 +50,7 @@ function App() {
   const [backLayout, setBackLayout] = useState({ x: 0, y: 0.1, scale: 1.0 })
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [libraryOpen, setLibraryOpen] = useState(false)
+  const [textPanelOpen, setTextPanelOpen] = useState(false)
   const [selectedSize, setSelectedSize] = useState('M')
   const [quantity, setQuantity] = useState(1)
   const [orderSummaryOpen, setOrderSummaryOpen] = useState(false)
@@ -55,8 +58,11 @@ function App() {
   const [activeSide, setActiveSide] = useState('front')
   const [frontDesign, setFrontDesign] = useState(null)
   const [backDesign, setBackDesign] = useState(null)
+  const [frontTextSettings, setFrontTextSettings] = useState({ ...DEFAULT_TEXT })
+  const [backTextSettings, setBackTextSettings] = useState({ ...DEFAULT_TEXT })
 
-  const hasDesign = !!(frontDesign || backDesign)
+  const activeTextSettings = activeSide === 'front' ? frontTextSettings : backTextSettings
+  const hasContent = !!(frontDesign || backDesign || frontTextSettings.text.trim() || backTextSettings.text.trim())
   const darkShirt = useMemo(() => isDarkColor(shirtColor), [shirtColor])
 
   useEffect(() => {
@@ -70,6 +76,14 @@ function App() {
       setBackLayout(prev => ({ ...prev, ...patch }))
     }
   }, [])
+
+  const handleTextChange = useCallback((patch) => {
+    if (activeSide === 'front') {
+      setFrontTextSettings(prev => ({ ...prev, ...patch }))
+    } else {
+      setBackTextSettings(prev => ({ ...prev, ...patch }))
+    }
+  }, [activeSide])
 
   const handleUpload = useCallback((file) => {
     setOriginalFile(file)
@@ -123,6 +137,8 @@ function App() {
       quantity,
       frontLayout,
       backLayout,
+      frontTextSettings,
+      backTextSettings,
     }
   }
 
@@ -181,6 +197,8 @@ function App() {
             frontLayout={frontLayout}
             backLayout={backLayout}
             onLayoutChange={handleLayoutChange}
+            frontTextSettings={frontTextSettings}
+            backTextSettings={backTextSettings}
           />
 
           {/* Front / Back selector */}
@@ -210,7 +228,7 @@ function App() {
           {/* Buzzer buttons */}
           <div className="flex items-end gap-3 md:gap-6 flex-wrap justify-center">
             <BuzzerButton label="COLOR" color="pink" onClick={() => setColorPickerOpen(true)} />
-            <BuzzerButton label="TEXT" color="cyan" onClick={() => {}} />
+            <BuzzerButton label="TEXT" color="cyan" onClick={() => setTextPanelOpen(true)} />
             <BuzzerButton label="UPLOAD" color="yellow" onClick={() => setUploadModalOpen(true)} />
             <BuzzerButton label="LIBRARY" color="purple" onClick={() => setLibraryOpen(true)} />
           </div>
@@ -224,11 +242,11 @@ function App() {
 
           <button
             onClick={() => setOrderSummaryOpen(true)}
-            disabled={!hasDesign}
+            disabled={!hasContent}
             className={`
               font-game text-[10px] md:text-xs px-8 py-2.5 border-3 border-black rounded-xl
               transition-all duration-100 cursor-pointer
-              ${hasDesign
+              ${hasContent
                 ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-[5px_5px_0_black] hover:shadow-[6px_6px_0_black] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[2px_2px_0_black] active:translate-x-0.5 active:translate-y-0.5'
                 : 'bg-gray-300 text-gray-500 shadow-[3px_3px_0_gray] cursor-not-allowed'
               }
@@ -250,6 +268,14 @@ function App() {
         onClose={() => setColorPickerOpen(false)}
         currentColor={shirtColor}
         onColorSelect={setShirtColor}
+      />
+
+      <TextPanel
+        isOpen={textPanelOpen}
+        onClose={() => setTextPanelOpen(false)}
+        textSettings={activeTextSettings}
+        onTextChange={handleTextChange}
+        activeSide={activeSide}
       />
 
       <LibraryModal

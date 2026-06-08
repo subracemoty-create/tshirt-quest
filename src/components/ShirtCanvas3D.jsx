@@ -31,6 +31,88 @@ function useDesignTexture(url) {
   return texture
 }
 
+/* ── Text-to-texture: renders typed text (straight or curved) onto a canvas ── */
+
+function drawCurvedText(ctx, text, cx, cy, radius) {
+  const isRTL = /[֐-׿]/.test(text.trim()[0] || '')
+  const chars = isRTL ? text.split('').reverse() : text.split('')
+
+  const charWidths = chars.map(ch => ctx.measureText(ch).width)
+  const totalWidth = charWidths.reduce((a, b) => a + b, 0)
+  const totalAngle = Math.min(totalWidth / radius, Math.PI * 0.9)
+  const scale = totalAngle / totalWidth
+
+  ctx.save()
+  ctx.translate(cx, cy)
+
+  let angle = -totalAngle / 2
+  for (let i = 0; i < chars.length; i++) {
+    const halfChar = (charWidths[i] * scale) / 2
+    angle += halfChar
+    ctx.save()
+    ctx.rotate(angle)
+    ctx.translate(0, -radius)
+    ctx.fillText(chars[i], 0, 0)
+    ctx.restore()
+    angle += halfChar
+  }
+
+  ctx.restore()
+}
+
+function useTextTexture(settings) {
+  const [texture, setTexture] = useState(null)
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    if (!settings?.text?.trim()) {
+      setTexture(prev => { if (prev) prev.dispose(); return null })
+      return
+    }
+
+    if (!canvasRef.current) {
+      canvasRef.current = document.createElement('canvas')
+      canvasRef.current.width = 512
+      canvasRef.current.height = 512
+    }
+
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    let cancelled = false
+
+    /* Wait for the chosen Google Font to be ready */
+    document.fonts.load(`bold 48px "${settings.font}"`).then(() => {
+      if (cancelled) return
+
+      ctx.clearRect(0, 0, 512, 512)
+
+      const len = settings.text.length
+      const fontSize = Math.min(110, Math.max(28, 500 / Math.max(len * 0.72, 1)))
+
+      ctx.font = `bold ${fontSize}px "${settings.font}"`
+      ctx.fillStyle = settings.color
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      if (settings.curved) {
+        drawCurvedText(ctx, settings.text, 256, 370, 190)
+      } else {
+        ctx.fillText(settings.text, 256, 256, 480)
+      }
+
+      const tex = new THREE.CanvasTexture(canvas)
+      tex.colorSpace = THREE.SRGBColorSpace
+      setTexture(prev => { if (prev) prev.dispose(); return tex })
+    })
+
+    return () => { cancelled = true }
+  }, [settings?.text, settings?.color, settings?.font, settings?.curved])
+
+  return texture
+}
+
+/* ── Shirt shape ── */
+
 function createShirtShape() {
   const s = new THREE.Shape()
   s.moveTo(-0.12, 0.95)
@@ -52,10 +134,14 @@ function createShirtShape() {
   return s
 }
 
-function TShirt({ shirtColor, frontDesign, backDesign, frontLayout, backLayout, activeSide, controlsRef }) {
+/* ── 3D T-Shirt mesh + overlays ── */
+
+function TShirt({ shirtColor, frontDesign, backDesign, frontLayout, backLayout, activeSide, controlsRef, frontTextSettings, backTextSettings }) {
   const meshRef = useRef()
   const frontTex = useDesignTexture(frontDesign)
   const backTex = useDesignTexture(backDesign)
+  const frontTextTex = useTextTexture(frontTextSettings)
+  const backTextTex = useTextTexture(backTextSettings)
   const targetAzimuth = useRef(0)
 
   const geometry = useMemo(() => {
@@ -97,6 +183,7 @@ function TShirt({ shirtColor, frontDesign, backDesign, frontLayout, backLayout, 
         <meshStandardMaterial color={shirtColor} roughness={0.3} metalness={0.0} side={THREE.DoubleSide} />
       </mesh>
 
+      {/* ── Front design image ── */}
       {frontTex && (
         <mesh position={[frontLayout.x, frontLayout.y, 0.03]}>
           <planeGeometry args={[fds, fds]} />
@@ -110,6 +197,21 @@ function TShirt({ shirtColor, frontDesign, backDesign, frontLayout, backLayout, 
         </mesh>
       )}
 
+      {/* ── Front text overlay ── */}
+      {frontTextTex && (
+        <mesh position={[frontLayout.x, frontLayout.y, 0.035]}>
+          <planeGeometry args={[fds, fds]} />
+          <meshBasicMaterial
+            map={frontTextTex}
+            transparent
+            depthWrite={false}
+            polygonOffset
+            polygonOffsetFactor={-2}
+          />
+        </mesh>
+      )}
+
+      {/* ── Back design image ── */}
       {backTex && (
         <mesh position={[backLayout.x, backLayout.y, -0.03]} rotation={[0, Math.PI, 0]}>
           <planeGeometry args={[bds, bds]} />
@@ -122,11 +224,27 @@ function TShirt({ shirtColor, frontDesign, backDesign, frontLayout, backLayout, 
           />
         </mesh>
       )}
+
+      {/* ── Back text overlay ── */}
+      {backTextTex && (
+        <mesh position={[backLayout.x, backLayout.y, -0.035]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[bds, bds]} />
+          <meshBasicMaterial
+            map={backTextTex}
+            transparent
+            depthWrite={false}
+            polygonOffset
+            polygonOffsetFactor={-2}
+          />
+        </mesh>
+      )}
     </group>
   )
 }
 
-function Scene({ frontDesign, backDesign, shirtColor, activeSide, frontLayout, backLayout }) {
+/* ── Scene ── */
+
+function Scene({ frontDesign, backDesign, shirtColor, activeSide, frontLayout, backLayout, frontTextSettings, backTextSettings }) {
   const controlsRef = useRef()
 
   return (
@@ -135,7 +253,7 @@ function Scene({ frontDesign, backDesign, shirtColor, activeSide, frontLayout, b
       <directionalLight position={[3, 5, 5]} intensity={2.0} />
       <directionalLight position={[-3, 3, -4]} intensity={1.0} />
       <pointLight position={[0, 2, 3]} intensity={0.8} />
-      {/* Rim lights — edge highlights so dark shirts pop against dark backgrounds */}
+      {/* Rim lights */}
       <pointLight position={[-2, 1, -1]} intensity={0.6} color="#4488ff" />
       <pointLight position={[2, 1, -1]} intensity={0.6} color="#4488ff" />
       <pointLight position={[0, -1, 2]} intensity={0.4} color="#6644cc" />
@@ -148,6 +266,8 @@ function Scene({ frontDesign, backDesign, shirtColor, activeSide, frontLayout, b
         backLayout={backLayout}
         activeSide={activeSide}
         controlsRef={controlsRef}
+        frontTextSettings={frontTextSettings}
+        backTextSettings={backTextSettings}
       />
 
       <OrbitControls
@@ -164,9 +284,12 @@ function Scene({ frontDesign, backDesign, shirtColor, activeSide, frontLayout, b
   )
 }
 
+/* ── Exported wrapper with controls bar ── */
+
 export default function ShirtCanvas3D({
   frontDesign, backDesign, shirtColor, activeSide,
   frontLayout, backLayout, onLayoutChange,
+  frontTextSettings, backTextSettings,
 }) {
   const layout = activeSide === 'front' ? frontLayout : backLayout
 
@@ -206,6 +329,8 @@ export default function ShirtCanvas3D({
           activeSide={activeSide}
           frontLayout={frontLayout}
           backLayout={backLayout}
+          frontTextSettings={frontTextSettings}
+          backTextSettings={backTextSettings}
         />
       </Canvas>
 

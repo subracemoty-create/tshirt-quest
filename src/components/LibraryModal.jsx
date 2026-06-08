@@ -79,15 +79,21 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
     setTimeout(() => pinInputRef.current?.focus(), 50)
   }
 
+  function handleClose(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    onClose()
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onMouseDown={handleClose}>
       <div
         className="bg-white border-4 border-purple-500 rounded-2xl p-5 w-[95%] max-w-lg shadow-[6px_6px_0_black] relative max-h-[85vh] flex flex-col"
-        onClick={e => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
       >
         {/* Close */}
         <button
-          onClick={onClose}
+          onMouseDown={handleClose}
           className="absolute top-3 right-3 w-8 h-8 bg-black text-white rounded-full font-bold text-lg flex items-center justify-center hover:bg-red-500 transition-colors cursor-pointer z-10"
         >
           X

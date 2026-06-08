@@ -12,7 +12,7 @@ export default function ControlPanel({
   uploadModalOpen, onUploadModalOpen, onUploadModalClose,
   onUpload,
   libraryOpen, onLibraryOpen, onLibraryClose,
-  onSelectDesign, library, onAddToLibrary, onRemoveFromLibrary, isAdmin,
+  onSelectDesign, library, onAddToLibrary, onRemoveFromLibrary, onMoveToCategory, isAdmin, onAdminLogin,
 }) {
   return (
     <>
@@ -53,7 +53,9 @@ export default function ControlPanel({
         library={library}
         onAddToLibrary={onAddToLibrary}
         onRemoveFromLibrary={onRemoveFromLibrary}
+        onMoveToCategory={onMoveToCategory}
         isAdmin={isAdmin}
+        onAdminLogin={onAdminLogin}
       />
     </>
   )

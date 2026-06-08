@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Header from './components/Header'
 import TshirtCanvas from './components/TshirtCanvas'
 import ControlPanel from './components/ControlPanel'
@@ -14,7 +14,7 @@ function isDarkColor(hex) {
   return (r * 0.299 + g * 0.587 + b * 0.114) < 100
 }
 
-const IS_ADMIN = true
+const ADMIN_PIN = '1234'
 const LIBRARY_STORAGE_KEY = 'tshirt-quest-library'
 const DEFAULT_TEXT = { text: '', color: '#000000', font: 'Rubik', curved: false }
 
@@ -51,6 +51,7 @@ function App() {
   const [quantity, setQuantity] = useState(1)
   const [orderSummaryOpen, setOrderSummaryOpen] = useState(false)
   const [library, setLibrary] = useState(loadLibrary)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [activeSide, setActiveSide] = useState('front')
   const [frontDesign, setFrontDesign] = useState(null)
   const [backDesign, setBackDesign] = useState(null)
@@ -63,7 +64,11 @@ function App() {
   const darkShirt = useMemo(() => isDarkColor(shirtColor), [shirtColor])
 
   /* ── Side effects ── */
-  useEffect(() => { saveLibrary(library) }, [library])
+  const libraryHydrated = useRef(false)
+  useEffect(() => {
+    if (!libraryHydrated.current) { libraryHydrated.current = true; return }
+    saveLibrary(library)
+  }, [library])
 
   /* ── Handlers ── */
   const handleLayoutChange = useCallback((side, patch) => {
@@ -113,6 +118,23 @@ function App() {
       ...prev,
       [categoryId]: (prev[categoryId] || []).filter(i => i.id !== itemId),
     }))
+  }, [])
+
+  const handleMoveToCategory = useCallback((fromCategory, toCategory, itemId) => {
+    setLibrary(prev => {
+      const item = (prev[fromCategory] || []).find(i => i.id === itemId)
+      if (!item) return prev
+      return {
+        ...prev,
+        [fromCategory]: prev[fromCategory].filter(i => i.id !== itemId),
+        [toCategory]: [...(prev[toCategory] || []), item],
+      }
+    })
+  }, [])
+
+  const handleAdminLogin = useCallback((pin) => {
+    if (pin === ADMIN_PIN) { setIsAdmin(true); return true }
+    return false
   }, [])
 
   const handleDrop = useCallback((e) => {
@@ -223,7 +245,9 @@ function App() {
             library={library}
             onAddToLibrary={handleAddToLibrary}
             onRemoveFromLibrary={handleRemoveFromLibrary}
-            isAdmin={IS_ADMIN}
+            onMoveToCategory={handleMoveToCategory}
+            isAdmin={isAdmin}
+            onAdminLogin={handleAdminLogin}
           />
 
           <OrderSelector

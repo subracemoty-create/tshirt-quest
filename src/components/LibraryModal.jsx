@@ -16,10 +16,14 @@ function fileToBase64(file) {
   })
 }
 
-export default function LibraryModal({ isOpen, onClose, onSelectDesign, library, onAddToLibrary, onRemoveFromLibrary, isAdmin }) {
+export default function LibraryModal({ isOpen, onClose, onSelectDesign, library, onAddToLibrary, onRemoveFromLibrary, onMoveToCategory, isAdmin, onAdminLogin }) {
   const [activeCategory, setActiveCategory] = useState('music')
   const [uploading, setUploading] = useState(false)
+  const [pinPromptOpen, setPinPromptOpen] = useState(false)
+  const [pinValue, setPinValue] = useState('')
+  const [pinError, setPinError] = useState(false)
   const fileInputRef = useRef(null)
+  const pinInputRef = useRef(null)
 
   if (!isOpen) return null
 
@@ -43,6 +47,26 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
     e.target.value = ''
   }
 
+  function handlePinSubmit() {
+    const success = onAdminLogin(pinValue)
+    if (success) {
+      setPinPromptOpen(false)
+      setPinValue('')
+      setPinError(false)
+    } else {
+      setPinError(true)
+      setPinValue('')
+    }
+  }
+
+  function handleLockClick() {
+    if (isAdmin) return
+    setPinPromptOpen(true)
+    setPinError(false)
+    setPinValue('')
+    setTimeout(() => pinInputRef.current?.focus(), 50)
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
@@ -57,7 +81,52 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
           X
         </button>
 
-        <h2 className="font-game text-sm mb-4 text-black">Design Library</h2>
+        {/* Title row with hidden lock */}
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="font-game text-sm text-black">Design Library</h2>
+          {!isAdmin && (
+            <button
+              onClick={handleLockClick}
+              className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-purple-500 transition-all cursor-pointer text-base opacity-50 hover:opacity-100 hover:scale-110 rounded-lg hover:bg-purple-50"
+            >
+              🔒
+            </button>
+          )}
+          {isAdmin && (
+            <span className="font-game text-[7px] px-2 py-0.5 bg-purple-100 text-purple-600 border border-purple-300 rounded-full">
+              ADMIN
+            </span>
+          )}
+        </div>
+
+        {/* PIN prompt */}
+        {pinPromptOpen && !isAdmin && (
+          <div className="mb-3 p-3 bg-gray-50 border-2 border-gray-200 rounded-xl flex items-center gap-2">
+            <input
+              ref={pinInputRef}
+              type="password"
+              maxLength={4}
+              value={pinValue}
+              onChange={e => { setPinValue(e.target.value); setPinError(false) }}
+              onKeyDown={e => e.key === 'Enter' && handlePinSubmit()}
+              placeholder="PIN"
+              className={`w-20 text-center font-game text-[10px] px-2 py-1.5 border-2 rounded-lg outline-none ${pinError ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
+            />
+            <button
+              onClick={handlePinSubmit}
+              className="font-game text-[8px] px-3 py-1.5 bg-purple-500 text-white border-2 border-purple-700 rounded-lg shadow-[1px_1px_0_black] hover:shadow-[2px_2px_0_black] cursor-pointer"
+            >
+              GO
+            </button>
+            <button
+              onClick={() => setPinPromptOpen(false)}
+              className="font-game text-[8px] px-2 py-1.5 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              ✕
+            </button>
+            {pinError && <span className="font-game text-[7px] text-red-500">Wrong PIN</span>}
+          </div>
+        )}
 
         {/* Category tabs */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
@@ -96,7 +165,7 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
                     <img src={item.url} alt={item.name} className="max-w-full max-h-full object-contain" />
                   </button>
 
-                  {/* Admin delete */}
+                  {/* Admin: delete button */}
                   {isAdmin && (
                     <button
                       onClick={() => onRemoveFromLibrary(activeCategory, item.id)}
@@ -105,13 +174,29 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
                       ×
                     </button>
                   )}
+
+                  {/* Admin: category reassignment dropdown */}
+                  {isAdmin && (
+                    <select
+                      value=""
+                      onChange={e => {
+                        if (e.target.value) onMoveToCategory(activeCategory, e.target.value, item.id)
+                      }}
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity w-[90%] text-[9px] font-game bg-white border border-purple-300 rounded px-0.5 py-0.5 cursor-pointer shadow-sm"
+                    >
+                      <option value="">Move to…</option>
+                      {CATEGORIES.filter(c => c.id !== activeCategory).map(c => (
+                        <option key={c.id} value={c.id}>{c.emoji} {c.label}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Admin upload */}
+        {/* Admin: upload to category */}
         {isAdmin && (
           <div className="mt-4 pt-3 border-t-2 border-dashed border-gray-300 flex items-center justify-between">
             <span className="font-game text-[8px] text-gray-500">Admin: Add to {CATEGORIES.find(c => c.id === activeCategory)?.label}</span>

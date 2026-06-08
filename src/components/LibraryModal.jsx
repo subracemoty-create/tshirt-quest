@@ -30,8 +30,12 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
       setPinPromptOpen(false)
       setPinValue('')
       setPinError(false)
+      return
     }
-  }, [isOpen])
+    function handleEsc(e) { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [isOpen, onClose])
 
   if (!isOpen) return null
 

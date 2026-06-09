@@ -316,10 +316,10 @@ export default function ShirtCanvas3D({
     Math.abs(layout.scale - p.scale) < 0.005
 
   return (
-    <div className="w-full max-w-md aspect-[4/5] relative flex-1 min-h-0">
+    <div id="tshirt-canvas-container" className="w-full max-w-md aspect-[4/5] relative flex-1 min-h-0">
       <Canvas
         camera={{ position: [0, 0.5, 2.5], fov: 35 }}
-        gl={{ alpha: true, antialias: true }}
+        gl={{ alpha: true, antialias: true, preserveDrawingBuffer: true }}
         style={{ background: 'transparent' }}
       >
         <Scene

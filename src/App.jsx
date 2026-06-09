@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Header from './components/Header'
+import MainMenu from './components/MainMenu'
 import TshirtCanvas from './components/TshirtCanvas'
 import ControlPanel from './components/ControlPanel'
 import OrderSelector from './components/OrderSelector'
@@ -38,6 +39,7 @@ function saveLibrary(library) {
 
 function App() {
   /* ── State ── */
+  const [currentView, setCurrentView] = useState(() => localStorage.getItem('tshirt-quest-view') || 'menu')
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [originalFile, setOriginalFile] = useState(null)
   const [cartCount, setCartCount] = useState(0)
@@ -57,6 +59,10 @@ function App() {
   const [backDesign, setBackDesign] = useState(null)
   const [frontTextSettings, setFrontTextSettings] = useState({ ...DEFAULT_TEXT })
   const [backTextSettings, setBackTextSettings] = useState({ ...DEFAULT_TEXT })
+
+  useEffect(() => {
+    localStorage.setItem('tshirt-quest-view', currentView)
+  }, [currentView])
 
   /* ── Derived ── */
   const activeTextSettings = activeSide === 'front' ? frontTextSettings : backTextSettings
@@ -82,8 +88,14 @@ function App() {
   const handleTextChange = useCallback((patch) => {
     if (activeSide === 'front') {
       setFrontTextSettings(prev => ({ ...prev, ...patch }))
+      if ('text' in patch && patch.text.trim()) {
+        setFrontDesign(null)
+      }
     } else {
       setBackTextSettings(prev => ({ ...prev, ...patch }))
+      if ('text' in patch && patch.text.trim()) {
+        setBackDesign(null)
+      }
     }
   }, [activeSide])
 
@@ -92,16 +104,20 @@ function App() {
     const url = URL.createObjectURL(file)
     if (activeSide === 'front') {
       setFrontDesign(url)
+      setFrontTextSettings({ ...DEFAULT_TEXT })
     } else {
       setBackDesign(url)
+      setBackTextSettings({ ...DEFAULT_TEXT })
     }
   }, [activeSide])
 
   const handleSelectFromLibrary = useCallback((url) => {
     if (activeSide === 'front') {
       setFrontDesign(url)
+      setFrontTextSettings({ ...DEFAULT_TEXT })
     } else {
       setBackDesign(url)
+      setBackTextSettings({ ...DEFAULT_TEXT })
     }
     setOriginalFile(null)
   }, [activeSide])
@@ -204,65 +220,76 @@ function App() {
       <div className="cockpit-content h-screen overflow-hidden">
         <Header cartCount={cartCount} level={1} />
 
-        <main
-          className="flex-1 min-h-0 flex flex-col items-center justify-center gap-1.5 px-4 py-1"
-          onDragOver={e => e.preventDefault()}
-          onDrop={handleDrop}
-        >
-          <TshirtCanvas
-            frontDesign={frontDesign}
-            backDesign={backDesign}
-            shirtColor={shirtColor}
-            activeSide={activeSide}
-            onActiveSideChange={setActiveSide}
-            frontLayout={frontLayout}
-            backLayout={backLayout}
-            onLayoutChange={handleLayoutChange}
-            frontTextSettings={frontTextSettings}
-            backTextSettings={backTextSettings}
-          />
+        {currentView === 'menu' ? (
+          <MainMenu onSelectCategory={(id) => setCurrentView(id)} />
+        ) : (
+          <main
+            className="flex-1 min-h-0 flex flex-col items-center justify-center gap-1.5 px-4 py-1"
+            onDragOver={e => e.preventDefault()}
+            onDrop={handleDrop}
+          >
+            <button
+              onClick={() => setCurrentView('menu')}
+              className="absolute top-16 left-4 z-40 font-game text-[7px] md:text-[8px] px-3 py-1.5 bg-black/70 text-gray-400 border border-gray-600 rounded-lg hover:text-cyan-400 hover:border-cyan-400/50 transition-all cursor-pointer backdrop-blur-sm"
+            >
+              ◀ חזרה לתפריט
+            </button>
 
-          <ControlPanel
-            colorPickerOpen={colorPickerOpen}
-            onColorPickerOpen={() => setColorPickerOpen(true)}
-            onColorPickerClose={() => setColorPickerOpen(false)}
-            shirtColor={shirtColor}
-            onColorSelect={setShirtColor}
-            textPanelOpen={textPanelOpen}
-            onTextPanelOpen={() => setTextPanelOpen(true)}
-            onTextPanelClose={() => setTextPanelOpen(false)}
-            activeTextSettings={activeTextSettings}
-            onTextChange={handleTextChange}
-            activeSide={activeSide}
-            uploadModalOpen={uploadModalOpen}
-            onUploadModalOpen={() => setUploadModalOpen(true)}
-            onUploadModalClose={() => setUploadModalOpen(false)}
-            onUpload={handleUpload}
-            libraryOpen={libraryOpen}
-            onLibraryOpen={() => setLibraryOpen(true)}
-            onLibraryClose={() => { setLibraryOpen(false); setIsAdmin(false) }}
-            onSelectDesign={handleSelectFromLibrary}
-            library={library}
-            onAddToLibrary={handleAddToLibrary}
-            onRemoveFromLibrary={handleRemoveFromLibrary}
-            onMoveToCategory={handleMoveToCategory}
-            isAdmin={isAdmin}
-            onAdminLogin={handleAdminLogin}
-          />
+            <TshirtCanvas
+              frontDesign={frontDesign}
+              backDesign={backDesign}
+              shirtColor={shirtColor}
+              activeSide={activeSide}
+              onActiveSideChange={setActiveSide}
+              frontLayout={frontLayout}
+              backLayout={backLayout}
+              onLayoutChange={handleLayoutChange}
+              frontTextSettings={frontTextSettings}
+              backTextSettings={backTextSettings}
+            />
 
-          <OrderSelector
-            selectedSize={selectedSize}
-            onSizeChange={setSelectedSize}
-            quantity={quantity}
-            onQuantityChange={setQuantity}
-            hasContent={hasContent}
-            orderSummaryOpen={orderSummaryOpen}
-            onOrderSummaryOpen={() => setOrderSummaryOpen(true)}
-            onOrderSummaryClose={() => setOrderSummaryOpen(false)}
-            onConfirmOrder={handleConfirmOrder}
-            orderData={getPrintData()}
-          />
-        </main>
+            <ControlPanel
+              colorPickerOpen={colorPickerOpen}
+              onColorPickerOpen={() => setColorPickerOpen(true)}
+              onColorPickerClose={() => setColorPickerOpen(false)}
+              shirtColor={shirtColor}
+              onColorSelect={setShirtColor}
+              textPanelOpen={textPanelOpen}
+              onTextPanelOpen={() => setTextPanelOpen(true)}
+              onTextPanelClose={() => setTextPanelOpen(false)}
+              activeTextSettings={activeTextSettings}
+              onTextChange={handleTextChange}
+              activeSide={activeSide}
+              uploadModalOpen={uploadModalOpen}
+              onUploadModalOpen={() => setUploadModalOpen(true)}
+              onUploadModalClose={() => setUploadModalOpen(false)}
+              onUpload={handleUpload}
+              libraryOpen={libraryOpen}
+              onLibraryOpen={() => setLibraryOpen(true)}
+              onLibraryClose={() => { setLibraryOpen(false); setIsAdmin(false) }}
+              onSelectDesign={handleSelectFromLibrary}
+              library={library}
+              onAddToLibrary={handleAddToLibrary}
+              onRemoveFromLibrary={handleRemoveFromLibrary}
+              onMoveToCategory={handleMoveToCategory}
+              isAdmin={isAdmin}
+              onAdminLogin={handleAdminLogin}
+            />
+
+            <OrderSelector
+              selectedSize={selectedSize}
+              onSizeChange={setSelectedSize}
+              quantity={quantity}
+              onQuantityChange={setQuantity}
+              hasContent={hasContent}
+              orderSummaryOpen={orderSummaryOpen}
+              onOrderSummaryOpen={() => setOrderSummaryOpen(true)}
+              onOrderSummaryClose={() => setOrderSummaryOpen(false)}
+              onConfirmOrder={handleConfirmOrder}
+              orderData={getPrintData()}
+            />
+          </main>
+        )}
       </div>
 
       <WhatsAppFloat />

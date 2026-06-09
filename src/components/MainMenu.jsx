@@ -4,6 +4,7 @@ const CATEGORIES = [
   { id: 'caps',   emoji: '🧢', label: 'CAPS',   hebrew: 'כובעים', color: 'yellow' },
   { id: 'mugs',   emoji: '☕', label: 'MUGS',   hebrew: 'כוסות',  color: 'purple' },
   { id: 'bags',   emoji: '🎒', label: 'BAGS',   hebrew: 'תיקים',  color: 'green' },
+  { id: 'babies', emoji: '👶', label: 'BABIES', hebrew: 'תינוקות', color: 'orange' },
 ]
 
 const colorStyles = {
@@ -12,32 +13,56 @@ const colorStyles = {
   yellow: { gradient: 'from-yellow-300 to-yellow-500', border: 'border-yellow-200', shadow: '0 0 30px rgba(255,200,0,0.4), 0 0 60px rgba(255,200,0,0.15)', hoverShadow: '0 0 45px rgba(255,200,0,0.6), 0 0 80px rgba(255,200,0,0.25)' },
   purple: { gradient: 'from-purple-400 to-purple-600', border: 'border-purple-300', shadow: '0 0 30px rgba(150,0,255,0.4), 0 0 60px rgba(150,0,255,0.15)', hoverShadow: '0 0 45px rgba(150,0,255,0.6), 0 0 80px rgba(150,0,255,0.25)' },
   green:  { gradient: 'from-green-400 to-green-600',  border: 'border-green-300',  shadow: '0 0 30px rgba(0,200,100,0.4), 0 0 60px rgba(0,200,100,0.15)', hoverShadow: '0 0 45px rgba(0,200,100,0.6), 0 0 80px rgba(0,200,100,0.25)' },
+  orange: { gradient: 'from-orange-400 to-orange-600', border: 'border-orange-300', shadow: '0 0 30px rgba(255,140,0,0.4), 0 0 60px rgba(255,140,0,0.15)', hoverShadow: '0 0 45px rgba(255,140,0,0.6), 0 0 80px rgba(255,140,0,0.25)' },
 }
 
 export default function MainMenu({ onSelectCategory }) {
   return (
-    <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-6 md:gap-8 px-4 py-4">
-      {/* Title block */}
-      <div className="text-center">
+    <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-4 md:gap-6 px-4 py-4">
+      {/* Widescreen title */}
+      <div className="w-full max-w-6xl mx-auto px-4 text-center">
         <h2
-          className="font-game text-lg md:text-2xl text-cyan-300 tracking-wide drop-shadow-[0_0_15px_rgba(0,200,255,0.5)]"
-          style={{ textShadow: '0 0 20px rgba(0,200,255,0.4), 0 2px 0 #000' }}
+          className="text-3xl md:text-5xl lg:text-6xl text-white uppercase leading-none tracking-tight"
+          style={{
+            fontFamily: '"Rubik Mono One", sans-serif',
+            textShadow: '4px 4px 0 #06b6d4, 0 0 20px rgba(6,182,212,0.6), 0 0 40px rgba(6,182,212,0.3)',
+          }}
         >
-          T-SHIRT QUEST
+          CREATE YOUR QUEST
         </h2>
         <p
-          className="font-game text-[9px] md:text-xs text-yellow-300 tracking-[0.3em] mt-1"
-          style={{ textShadow: '0 0 12px rgba(255,200,0,0.4)' }}
+          className="text-lg md:text-2xl lg:text-3xl text-cyan-300 mt-1 md:mt-2"
+          dir="rtl"
+          style={{ fontFamily: '"Rubik Mono One", sans-serif' }}
         >
-          SPACE CUSTOMIZER
+          מעבדת העיצוב שלך
         </p>
-        <div className="mt-2 h-0.5 w-40 md:w-56 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50" />
       </div>
 
-      {/* Subtitle */}
-      <p className="font-game text-[8px] md:text-[10px] text-gray-400 tracking-widest">
-        SELECT YOUR MISSION
-      </p>
+      {/* Wide sub-headline */}
+      <div className="w-full max-w-5xl mx-auto px-4">
+        <p
+          className="font-game text-[8px] md:text-[11px] lg:text-sm text-center leading-relaxed text-white tracking-widest"
+          style={{
+            textShadow: '0 0 10px rgba(255,255,255,0.5), 0 0 30px rgba(255,255,255,0.2)',
+          }}
+        >
+          🧬 CHOOSE FROM OUR LIBRARY OR UPLOAD YOUR OWN PNG • בחר מהספרייה או העלה עיצוב משלך
+        </p>
+      </div>
+
+      {/* Wide pill badge */}
+      <div
+        className="w-full max-w-xl md:max-w-2xl mx-auto bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-300 border-4 border-black rounded-full px-6 md:px-10 py-2.5 md:py-3 text-center shadow-[6px_6px_0_black]"
+        dir="rtl"
+      >
+        <span
+          className="text-[10px] md:text-sm lg:text-base font-bold text-black tracking-wide"
+          style={{ fontFamily: '"Rubik Mono One", sans-serif' }}
+        >
+          ⚡ פתח משימה ובחר קטגוריה להתחלת העיצוב
+        </span>
+      </div>
 
       {/* Category buzzers */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5 w-full max-w-md md:max-w-lg">

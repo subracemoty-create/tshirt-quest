@@ -42,18 +42,20 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
   const items = library[activeCategory] || []
 
   async function handleFileAdd(e) {
-    const file = e.target.files[0]
-    if (!file) return
+    const files = Array.from(e.target.files)
+    if (files.length === 0) return
     setUploading(true)
     try {
-      const dataUrl = await fileToBase64(file)
-      onAddToLibrary(activeCategory, {
-        id: Date.now().toString(),
-        url: dataUrl,
-        name: file.name,
+      const results = await Promise.all(files.map(f => fileToBase64(f)))
+      results.forEach((dataUrl, i) => {
+        onAddToLibrary(activeCategory, {
+          id: `${Date.now()}-${i}`,
+          url: dataUrl,
+          name: files[i].name,
+        })
       })
     } catch (err) {
-      console.error('Failed to read file:', err)
+      console.error('Failed to read files:', err)
     }
     setUploading(false)
     e.target.value = ''
@@ -211,7 +213,7 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
         {/* Admin: upload to category */}
         {isAdmin && (
           <div className="mt-4 pt-3 border-t-2 border-dashed border-gray-300 flex items-center justify-between">
-            <span className="font-game text-[8px] text-gray-500">Admin: Add to {CATEGORIES.find(c => c.id === activeCategory)?.label}</span>
+            <span className="font-game text-[8px] text-gray-500">Admin: Add to {CATEGORIES.find(c => c.id === activeCategory)?.label} (bulk)</span>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
@@ -223,6 +225,7 @@ export default function LibraryModal({ isOpen, onClose, onSelectDesign, library,
               ref={fileInputRef}
               type="file"
               accept="image/png,image/jpeg,image/webp"
+              multiple
               onChange={handleFileAdd}
               className="hidden"
             />

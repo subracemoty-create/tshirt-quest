@@ -29,6 +29,12 @@ const colorMap = {
     shadow: '0 0 25px rgba(0,200,100,0.5), 0 0 50px rgba(0,200,100,0.2)',
     hoverShadow: '0 0 35px rgba(0,200,100,0.7), 0 0 60px rgba(0,200,100,0.3)',
   },
+  orange: {
+    outer: 'from-orange-300 to-orange-500',
+    inner: 'from-orange-400 to-orange-600',
+    shadow: '0 0 25px rgba(255,140,0,0.5), 0 0 50px rgba(255,140,0,0.2)',
+    hoverShadow: '0 0 35px rgba(255,140,0,0.7), 0 0 60px rgba(255,140,0,0.3)',
+  },
 }
 
 export default function BuzzerButton({ label, color = 'pink', onClick }) {

@@ -2,8 +2,12 @@ import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Header from './components/Header'
 import MainMenu from './components/MainMenu'
 import TshirtCanvas from './components/TshirtCanvas'
+import KidsCanvas from './components/KidsCanvas'
+import BabiesCanvas from './components/BabiesCanvas'
 import ControlPanel from './components/ControlPanel'
 import OrderSelector from './components/OrderSelector'
+import KidsOrderSelector from './components/KidsOrderSelector'
+import BabiesOrderSelector from './components/BabiesOrderSelector'
 import StarField from './components/StarField'
 import WhatsAppFloat from './components/WhatsAppFloat'
 
@@ -39,7 +43,7 @@ function saveLibrary(library) {
 
 function App() {
   /* ── State ── */
-  const [currentView, setCurrentView] = useState(() => localStorage.getItem('tshirt-quest-view') || 'menu')
+  const [currentView, setCurrentView] = useState('menu')
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [originalFile, setOriginalFile] = useState(null)
   const [cartCount, setCartCount] = useState(0)
@@ -50,6 +54,8 @@ function App() {
   const [libraryOpen, setLibraryOpen] = useState(false)
   const [textPanelOpen, setTextPanelOpen] = useState(false)
   const [selectedSize, setSelectedSize] = useState('M')
+  const [kidsSize, setKidsSize] = useState('8')
+  const [babiesSize, setBabiesSize] = useState('6-12M')
   const [quantity, setQuantity] = useState(1)
   const [orderSummaryOpen, setOrderSummaryOpen] = useState(false)
   const [library, setLibrary] = useState(loadLibrary)
@@ -60,9 +66,7 @@ function App() {
   const [frontTextSettings, setFrontTextSettings] = useState({ ...DEFAULT_TEXT })
   const [backTextSettings, setBackTextSettings] = useState({ ...DEFAULT_TEXT })
 
-  useEffect(() => {
-    localStorage.setItem('tshirt-quest-view', currentView)
-  }, [currentView])
+  useEffect(() => { localStorage.removeItem('tshirt-quest-view') }, [])
 
   /* ── Derived ── */
   const activeTextSettings = activeSide === 'front' ? frontTextSettings : backTextSettings
@@ -228,25 +232,62 @@ function App() {
             onDragOver={e => e.preventDefault()}
             onDrop={handleDrop}
           >
-            <button
-              onClick={() => setCurrentView('menu')}
-              className="absolute top-16 left-4 z-40 font-game text-[7px] md:text-[8px] px-3 py-1.5 bg-black/70 text-gray-400 border border-gray-600 rounded-lg hover:text-cyan-400 hover:border-cyan-400/50 transition-all cursor-pointer backdrop-blur-sm"
-            >
-              ◀ חזרה לתפריט
-            </button>
+            <div className="w-full flex justify-between items-center px-1 md:px-4 flex-shrink-0">
+              <button
+                onClick={() => setCurrentView('menu')}
+                className="font-game text-[7px] md:text-[9px] px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-b from-cyan-300 to-cyan-500 text-white border-4 border-black rounded-xl shadow-[4px_4px_0_black] hover:shadow-[5px_5px_0_black] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[2px_2px_0_black] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+              >
+                BACK TO MAIN STATION 🛰️
+              </button>
+              <button
+                onClick={() => setCurrentView('menu')}
+                className="font-game text-[7px] md:text-[9px] px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-b from-pink-400 to-pink-600 text-white border-4 border-black rounded-xl shadow-[4px_4px_0_black] hover:shadow-[5px_5px_0_black] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[2px_2px_0_black] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+                dir="rtl"
+              >
+                🛸 חזרה למסך הראשי
+              </button>
+            </div>
 
-            <TshirtCanvas
-              frontDesign={frontDesign}
-              backDesign={backDesign}
-              shirtColor={shirtColor}
-              activeSide={activeSide}
-              onActiveSideChange={setActiveSide}
-              frontLayout={frontLayout}
-              backLayout={backLayout}
-              onLayoutChange={handleLayoutChange}
-              frontTextSettings={frontTextSettings}
-              backTextSettings={backTextSettings}
-            />
+            {currentView === 'babies' ? (
+              <BabiesCanvas
+                frontDesign={frontDesign}
+                backDesign={backDesign}
+                shirtColor={shirtColor}
+                activeSide={activeSide}
+                onActiveSideChange={setActiveSide}
+                frontLayout={frontLayout}
+                backLayout={backLayout}
+                onLayoutChange={handleLayoutChange}
+                frontTextSettings={frontTextSettings}
+                backTextSettings={backTextSettings}
+              />
+            ) : currentView === 'kids' ? (
+              <KidsCanvas
+                frontDesign={frontDesign}
+                backDesign={backDesign}
+                shirtColor={shirtColor}
+                activeSide={activeSide}
+                onActiveSideChange={setActiveSide}
+                frontLayout={frontLayout}
+                backLayout={backLayout}
+                onLayoutChange={handleLayoutChange}
+                frontTextSettings={frontTextSettings}
+                backTextSettings={backTextSettings}
+              />
+            ) : (
+              <TshirtCanvas
+                frontDesign={frontDesign}
+                backDesign={backDesign}
+                shirtColor={shirtColor}
+                activeSide={activeSide}
+                onActiveSideChange={setActiveSide}
+                frontLayout={frontLayout}
+                backLayout={backLayout}
+                onLayoutChange={handleLayoutChange}
+                frontTextSettings={frontTextSettings}
+                backTextSettings={backTextSettings}
+              />
+            )}
 
             <ControlPanel
               colorPickerOpen={colorPickerOpen}
@@ -276,18 +317,46 @@ function App() {
               onAdminLogin={handleAdminLogin}
             />
 
-            <OrderSelector
-              selectedSize={selectedSize}
-              onSizeChange={setSelectedSize}
-              quantity={quantity}
-              onQuantityChange={setQuantity}
-              hasContent={hasContent}
-              orderSummaryOpen={orderSummaryOpen}
-              onOrderSummaryOpen={() => setOrderSummaryOpen(true)}
-              onOrderSummaryClose={() => setOrderSummaryOpen(false)}
-              onConfirmOrder={handleConfirmOrder}
-              orderData={getPrintData()}
-            />
+            {currentView === 'babies' ? (
+              <BabiesOrderSelector
+                selectedSize={babiesSize}
+                onSizeChange={setBabiesSize}
+                quantity={quantity}
+                onQuantityChange={setQuantity}
+                hasContent={hasContent}
+                orderSummaryOpen={orderSummaryOpen}
+                onOrderSummaryOpen={() => setOrderSummaryOpen(true)}
+                onOrderSummaryClose={() => setOrderSummaryOpen(false)}
+                onConfirmOrder={handleConfirmOrder}
+                orderData={{ ...getPrintData(), selectedSize: babiesSize }}
+              />
+            ) : currentView === 'kids' ? (
+              <KidsOrderSelector
+                selectedSize={kidsSize}
+                onSizeChange={setKidsSize}
+                quantity={quantity}
+                onQuantityChange={setQuantity}
+                hasContent={hasContent}
+                orderSummaryOpen={orderSummaryOpen}
+                onOrderSummaryOpen={() => setOrderSummaryOpen(true)}
+                onOrderSummaryClose={() => setOrderSummaryOpen(false)}
+                onConfirmOrder={handleConfirmOrder}
+                orderData={{ ...getPrintData(), selectedSize: kidsSize }}
+              />
+            ) : (
+              <OrderSelector
+                selectedSize={selectedSize}
+                onSizeChange={setSelectedSize}
+                quantity={quantity}
+                onQuantityChange={setQuantity}
+                hasContent={hasContent}
+                orderSummaryOpen={orderSummaryOpen}
+                onOrderSummaryOpen={() => setOrderSummaryOpen(true)}
+                onOrderSummaryClose={() => setOrderSummaryOpen(false)}
+                onConfirmOrder={handleConfirmOrder}
+                orderData={getPrintData()}
+              />
+            )}
           </main>
         )}
       </div>

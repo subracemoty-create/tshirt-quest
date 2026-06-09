@@ -65,8 +65,29 @@ function App() {
   const [backDesign, setBackDesign] = useState(null)
   const [frontTextSettings, setFrontTextSettings] = useState({ ...DEFAULT_TEXT })
   const [backTextSettings, setBackTextSettings] = useState({ ...DEFAULT_TEXT })
+  const [isMuted, setIsMuted] = useState(true)
+  const audioRef = useRef(null)
 
   useEffect(() => { localStorage.removeItem('tshirt-quest-view') }, [])
+
+  useEffect(() => {
+    audioRef.current = new Audio('/audio/psychill-bg.mp3')
+    audioRef.current.loop = true
+    audioRef.current.volume = 0.35
+    return () => { if (audioRef.current) audioRef.current.pause() }
+  }, [])
+
+  const toggleAudio = useCallback(() => {
+    if (!audioRef.current) return
+    if (isMuted) {
+      audioRef.current.play()
+        .then(() => setIsMuted(false))
+        .catch(err => console.log('Audio play blocked:', err))
+    } else {
+      audioRef.current.pause()
+      setIsMuted(true)
+    }
+  }, [isMuted])
 
   /* ── Derived ── */
   const activeTextSettings = activeSide === 'front' ? frontTextSettings : backTextSettings
@@ -223,6 +244,22 @@ function App() {
 
       <div className="cockpit-content h-screen overflow-hidden">
         <Header cartCount={cartCount} level={1} />
+
+        <button
+          onClick={toggleAudio}
+          className={`
+            fixed top-3 right-24 z-50 flex items-center gap-2 px-3 py-1.5 font-game text-[8px] text-black uppercase tracking-wider
+            border-[3px] border-black rounded-lg transition-all duration-100 active:translate-y-0.5 active:shadow-none cursor-pointer
+            ${isMuted
+              ? 'bg-yellow-400 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] animate-pulse'
+              : 'bg-green-400 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] translate-y-[2px]'
+            }
+          `}
+          title={isMuted ? 'הפעל תדר Psychill קוסמי' : 'השתק מוזיקת רקע'}
+        >
+          <span className="text-sm">{isMuted ? '❌' : '🔊'}</span>
+          <span>{isMuted ? 'SOUND OFF' : 'SOUND ON'}</span>
+        </button>
 
         {currentView === 'menu' ? (
           <MainMenu onSelectCategory={(id) => setCurrentView(id)} />
